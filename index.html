@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TheGamer's 2026 Buyer's Guide</title>
+
+  <!-- TheGamer global stylesheet (provides header/footer/nav styles) -->
+  <link rel="stylesheet" href="https://static0.thegamerimages.com/assets/static.82d7d990.css">
+  <!-- Fonts: loaded here for standalone preview. TheGamer's global CSS
+       already loads both, so on the live page this is a no-op. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <!-- PapaParse is not in TheGamer's global bundle — always needed. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <style>
+    /* ── Scoped reset — only inside the widget ───────────────── */
+    #gift-guide-widget *, #gift-guide-widget *::before, #gift-guide-widget *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+    }
+
+    /* ── Widget wrapper + design tokens — DARK (default) ───────
+       All vars live on #gift-guide-widget so they don't bleed
+       into the surrounding TheGamer page.                      */
+    #gift-guide-widget {
+      --orange:          #ff6b0f;
+      --orange-dark:     #c24a00;
+      --bg:              #101010;
+      --surface:         #1c1c1c;
+      --surface-hover:   #262626;
+      --border:          #484848;
+      --border-bright:   #6a6a6a;
+      --text:            #e2e2e2;
+      --text-muted:      #aaa;
+      --text-dim:        #777;
+      --text-heading:    #ffffff;
+      --card-shadow:     0 4px 12px 4px hsla(0,0%,4%,.5);
+      --card-shadow-hover: 0 8px 28px 4px hsla(0,0%,4%,.7);
+      --font-head:       'Rajdhani', 'Arial Black', sans-serif;
+      --font-body:       'Roboto', Arial, sans-serif;
+      --ease:            cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* ── Design tokens — LIGHT ────────────────────────────────── */
+    #gift-guide-widget[data-theme="light"] {
+      --bg:              #f0f0f0;
+      --surface:         #ffffff;
+      --surface-hover:   #f7f7f7;
+      --border:          #e0e0e0;
+      --border-bright:   #c8c8c8;
+      --text:            #1a1a1a;
+      --text-muted:      #5a5a5a;
+      --text-dim:        #aaaaaa;
+      --text-heading:    #0a0a0a;
+      --card-shadow:     0 2px 10px 2px rgba(0,0,0,0.08);
+      --card-shadow-hover: 0 6px 22px 2px rgba(0,0,0,0.14);
+    }
+
+    /* ── Masthead + controls row ─────────────────────────────── */
+    .guide-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 4px solid var(--orange);
+      padding-top: 14px;
+      margin-bottom: 0;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .guide-topbar__brand {
+      font-family: var(--font-head);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--orange);
+    }
+
+    /* Controls: theme + view toggles */
+    .guide-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ctrl-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--border-bright);
+      margin: 0 4px;
+    }
+    .ctrl-btn {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      background: transparent;
+      border: 1.5px solid var(--border-bright);
+      border-radius: 3px;
+      color: var(--text-muted);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.16s var(--ease), color 0.16s var(--ease),
+                  border-color 0.16s var(--ease);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .ctrl-btn:hover {
+      color: var(--text-heading);
+      border-color: var(--text-muted);
+      background: var(--surface-hover);
+    }
+    .ctrl-btn--active {
+      background: var(--surface-hover);
+      color: var(--text-heading);
+      border-color: var(--border-bright);
+    }
+    .ctrl-btn--theme.ctrl-btn--active {
+      background: var(--orange);
+      color: #fff;
+      border-color: var(--orange);
+    }
+    .ctrl-btn--theme.ctrl-btn--active:hover {
+      background: var(--orange-dark);
+      border-color: var(--orange-dark);
+    }
+
+    /* ── Header ──────────────────────────────────────────────── */
+    .guide-header {
+      padding: 24px 0 28px !important;
+      border-bottom: 1px solid var(--border) !important;
+      margin-bottom: 28px !important;
+    }
+    .guide-header__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-head);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 12px;
+    }
+    .guide-header__eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 18px;
+      height: 3px;
+      background: var(--orange);
+      border-radius: 2px;
+    }
+    .guide-header__title {
+      font-family: var(--font-head);
+      font-size: clamp(40px, 6vw, 78px);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--text-heading);
+      margin-bottom: 14px;
+      transition: color 0.25s ease;
+    }
+    .guide-header__title span { color: var(--orange); }
+    .guide-header__subtitle {
+      font-size: 19px;
+      color: #d4d4d4;
+      line-height: 1.6;
+      max-width: 100% !important;
+      margin-left: 0 !important;
+      padding-left: 0 !important;
+      text-indent: 0 !important;
+    }
+
+
+    /* ── Filter bar ──────────────────────────────────────────── */
+    .filter-bar-wrapper {
+      margin-top: 8px !important;
+      margin-bottom: 16px !important;
+    }
+    .filter-bar {
+      display: flex !important;
+      gap: 10px !important;
+      flex-wrap: wrap;
+    }
+
+    /* Dropdown group container */
+    .filter-group {
+      position: relative;
+    }
+
+    /* Top-level dropdown trigger button */
+    .filter-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 13px 20px !important;
+      border: 1.5px solid var(--border-bright) !important;
+      border-radius: 3px !important;
+      background: transparent !important;
+      color: var(--text-muted) !important;
+      font-family: var(--font-head) !important;
+      font-size: 15px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.07em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+      line-height: 1 !important;
+      transition: background 0.18s var(--ease), color 0.18s var(--ease),
+                  border-color 0.18s var(--ease);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .filter-btn:hover {
+      background: var(--surface-hover) !important;
+      color: var(--text-heading) !important;
+      border-color: var(--text-muted) !important;
+    }
+    .filter-btn--open,
+    .filter-btn--partial {
+      border-color: var(--orange) !important;
+      color: var(--text-heading) !important;
+    }
+    .filter-btn--open {
+      background: var(--surface-hover) !important;
+    }
+    .filter-btn__arrow {
+      font-size: 10px;
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+    .filter-btn--open .filter-btn__arrow { transform: rotate(180deg); }
+
+    /* Group-level checkbox inside trigger button */
+    .filter-group__cb {
+      width: 14px !important;
+      height: 14px !important;
+      accent-color: var(--orange);
+      flex-shrink: 0;
+      cursor: pointer !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      pointer-events: all;
+    }
+
+    /* Reset Filters link */
+    .filter-reset-link {
+      display: inline-flex !important;
+      align-items: center !important;
+      background: none !important;
+      border: none !important;
+      padding: 0 4px !important;
+      font-family: var(--font-head) !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.07em !important;
+      text-transform: uppercase !important;
+      color: var(--orange) !important;
+      cursor: pointer !important;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s ease;
+      align-self: center;
+    }
+    .filter-reset-link:hover { color: var(--orange-dark) !important; }
+
+    /* "All Filters" active state */
+    .filter-btn--all-active {
+      border-color: var(--orange) !important;
+      color: var(--text-heading) !important;
+    }
+
+    /* Dropdown panel */
+    .filter-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 4px;
+      padding: 8px 0;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .filter-dropdown--open { display: block; }
+
+    /* Checkbox rows */
+    .filter-dropdown__item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: 9px 16px !important;
+      cursor: pointer !important;
+      font-family: var(--font-body) !important;
+      font-size: 13px !important;
+      color: var(--text-muted) !important;
+      font-weight: 400 !important;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+      line-height: 1.3 !important;
+      transition: background 0.12s ease, color 0.12s ease;
+      white-space: nowrap;
+      list-style: none !important;
+      margin: 0 !important;
+    }
+    .filter-dropdown__item:hover {
+      background: var(--surface-hover);
+      color: var(--text-heading) !important;
+    }
+    .filter-dropdown__item input[type="checkbox"] {
+      width: 14px !important;
+      height: 14px !important;
+      accent-color: var(--orange);
+      flex-shrink: 0;
+      cursor: pointer !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Action items (non-checkbox) in All Filters dropdown */
+    .filter-dropdown__action {
+      display: block !important;
+      width: 100% !important;
+      padding: 9px 16px !important;
+      cursor: pointer !important;
+      font-family: var(--font-body) !important;
+      font-size: 13px !important;
+      color: var(--text-muted) !important;
+      font-weight: 400 !important;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+      line-height: 1.3 !important;
+      background: none !important;
+      border: none !important;
+      text-align: left !important;
+      transition: background 0.12s ease, color 0.12s ease;
+      white-space: nowrap;
+    }
+    .filter-dropdown__action:hover {
+      background: var(--surface-hover) !important;
+      color: var(--text-heading) !important;
+    }
+    .filter-dropdown__sep {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 8px;
+    }
+
+    /* Group rows inside All Filters dropdown */
+    .filter-all-row {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 7px 16px !important;
+    }
+    .filter-all-row__cb {
+      width: 14px !important;
+      height: 14px !important;
+      accent-color: var(--orange);
+      flex-shrink: 0;
+      cursor: pointer !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .filter-all-row__label {
+      flex: 1 !important;
+      font-family: var(--font-body) !important;
+      font-size: 13px !important;
+      color: var(--text-muted) !important;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.12s ease;
+    }
+    .filter-all-row:hover .filter-all-row__label { color: var(--text-heading) !important; }
+    .filter-all-row__only {
+      flex-shrink: 0;
+      padding: 3px 8px !important;
+      border: 1px solid var(--border-bright) !important;
+      border-radius: 2px !important;
+      background: transparent !important;
+      color: var(--text-dim) !important;
+      font-family: var(--font-head) !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.1em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+      transition: border-color 0.12s ease, color 0.12s ease;
+    }
+    .filter-all-row__only:hover {
+      border-color: var(--orange) !important;
+      color: var(--orange) !important;
+    }
+
+    /* Follow This Page button */
+    .guide-header__follow {
+      display: flex !important;
+      justify-content: flex-end !important;
+      margin-top: 12px !important;
+    }
+    .guide-header__follow-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      background: none !important;
+      border: none !important;
+      padding: 0 !important;
+      color: var(--text-muted) !important;
+      font-family: var(--font-head) !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+      transition: color 0.15s ease;
+    }
+    .guide-header__follow-btn:hover { color: var(--text-heading) !important; }
+    .guide-header__follow-btn.active { color: var(--orange) !important; }
+    .guide-header__follow-btn.active .follow-icon path { fill: var(--orange); }
+
+    /* ── Sort bar ─────────────────────────────────────────────── */
+    .sort-bar-wrapper {
+      margin-bottom: 28px !important;
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .sort-bar__label {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      line-height: 1.3;
+      text-align: center;
+      margin-right: 2px;
+    }
+    .sort-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 13px 20px !important;
+      border: 1.5px solid var(--border-bright) !important;
+      border-radius: 3px !important;
+      background: transparent !important;
+      color: var(--text-muted) !important;
+      font-family: var(--font-head) !important;
+      font-size: 15px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.07em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+      line-height: 1 !important;
+      transition: background 0.18s var(--ease), color 0.18s var(--ease),
+                  border-color 0.18s var(--ease);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .sort-btn:hover {
+      color: var(--text-heading) !important;
+      border-color: var(--text-muted) !important;
+      background: var(--surface-hover) !important;
+    }
+    .sort-btn--active {
+      background: var(--surface-hover) !important;
+      color: var(--text-heading) !important;
+      border-color: var(--border-bright) !important;
+    }
+    .sort-btn--deals { color: var(--orange) !important; border-color: var(--orange) !important; }
+    .sort-btn--deals:hover,
+    .sort-btn--deals.sort-btn--active {
+      background: var(--orange) !important;
+      color: #fff !important;
+      border-color: var(--orange) !important;
+    }
+
+    /* ── Product grid ─────────────────────────────────────────── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* ── Card ─────────────────────────────────────────────────── */
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease),
+                  border-color 0.22s var(--ease), background 0.25s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--orange);
+    }
+
+    /* Image */
+    .product-card__image-wrap {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      overflow: hidden;
+      background: var(--border);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .product-card__image-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s var(--ease);
+    }
+    .product-card:hover .product-card__image-wrap::after { transform: scaleX(1); }
+
+    .product-card__image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s var(--ease), filter 0.3s ease;
+      filter: brightness(0.9);
+    }
+    .product-card:hover .product-card__image {
+      transform: scale(1.05);
+      filter: brightness(1);
+    }
+
+    /* Body */
+    .product-card__body {
+      padding: 16px 18px 18px !important;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      position: relative;
+    }
+    .product-card__category {
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--orange);
+      align-self: flex-start;
+    }
+    .product-card__title {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      color: var(--text-heading);
+      text-transform: uppercase;
+      transition: color 0.25s ease;
+    }
+
+    /* Price row */
+    .product-card__price-row {
+      display: flex !important;
+      align-items: center !important;
+      width: 100% !important;
+      gap: 10px;
+      flex-wrap: nowrap;
+      line-height: 1;
+    }
+    .product-card__price {
+      font-family: var(--font-head);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .product-card__price-original {
+      font-family: var(--font-head);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-heading);
+      text-decoration: line-through;
+      line-height: 1;
+      transition: color 0.25s ease;
+    }
+    .product-card__discount {
+      position: absolute;
+      top: -26px;
+      right: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      font-family: var(--font-head);
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--orange);
+    }
+
+    /* Description */
+    .product-card__desc {
+      font-size: 14px;
+      font-style: italic;
+      color: #c9c9c9;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+
+    /* CTA buttons */
+    .product-card__btns {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 8px;
+      margin-top: 4px;
+      min-height: 100px;
+    }
+    .product-card__btn {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 100% !important;
+      padding: 16px 14px !important;
+      border-radius: 3px !important;
+      font-family: var(--font-head) !important;
+      font-size: 15px !important;
+      line-height: 1 !important;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.18s var(--ease), color 0.18s var(--ease),
+                  border-color 0.18s var(--ease), transform 0.18s var(--ease);
+      white-space: nowrap;
+    }
+    .product-card__btn--primary {
+      background: var(--text-heading);
+      color: var(--bg);
+      border: 1.5px solid var(--text-heading);
+      transition: background 0.18s var(--ease), color 0.18s var(--ease),
+                  border-color 0.18s var(--ease), transform 0.18s var(--ease);
+    }
+    .product-card__btn--primary:hover {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .product-card__btn--secondary {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1.5px solid var(--border-bright);
+    }
+    .product-card__btn--secondary:hover {
+      color: var(--text-heading);
+      border-color: var(--text-muted);
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+    }
+
+    /* ── Loading / empty ──────────────────────────────────────── */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 80px 0;
+      color: var(--text-muted);
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .loading-spinner {
+      width: 34px;
+      height: 34px;
+      border: 3px solid var(--border);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 0;
+      color: var(--text-dim);
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Load More button ─────────────────────────────────────── */
+    .load-more-wrap {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 36px 0 8px;
+    }
+    .load-more-btn {
+      padding: 16px 48px !important;
+      background: transparent !important;
+      border: 1.5px solid var(--border-bright) !important;
+      border-radius: 3px !important;
+      color: var(--text-muted) !important;
+      font-family: var(--font-head) !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.1em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+      line-height: 1 !important;
+      transition: background 0.18s var(--ease), color 0.18s var(--ease),
+                  border-color 0.18s var(--ease), transform 0.18s var(--ease);
+    }
+    .load-more-btn:hover {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .load-more-count {
+      font-family: var(--font-head);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    /* ── View override classes ────────────────────────────────────
+       Applied by the Desktop/Mobile toggle buttons.
+       All rules use !important to beat media queries.           */
+
+    /* MOBILE OVERRIDE */
+    #gift-guide-widget.view-mobile {
+      max-width: 390px !important;
+      border: 2px solid var(--border-bright);
+      border-radius: 8px;
+      padding-top: 16px !important;
+    }
+    #gift-guide-widget.view-mobile .product-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    #gift-guide-widget.view-mobile .product-card__btns {
+      flex-direction: column !important;
+    }
+    #gift-guide-widget.view-mobile .product-card__btn {
+      flex: unset !important;
+      min-width: unset !important;
+      width: 100% !important;
+    }
+    #gift-guide-widget.view-mobile .sort-bar-wrapper {
+      flex-wrap: wrap !important;
+    }
+    #gift-guide-widget.view-mobile .guide-header__title {
+      font-size: 36px !important;
+    }
+    #gift-guide-widget.view-mobile .guide-controls {
+      flex-wrap: wrap !important;
+    }
+    #gift-guide-widget.view-mobile .guide-header {
+      flex-direction: column !important;
+    }
+
+    /* DESKTOP OVERRIDE */
+    #gift-guide-widget.view-desktop {
+      max-width: 1300px !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding-top: 0 !important;
+    }
+    #gift-guide-widget.view-desktop .product-grid {
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 18px !important;
+    }
+    #gift-guide-widget.view-desktop .product-card__btns {
+      flex-direction: column !important;
+    }
+
+    /* ── Modal overlay ────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+    .modal-overlay--open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      padding: 32px 28px 24px;
+      position: relative;
+      transform: translateY(14px);
+      transition: transform 0.24s var(--ease);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.8);
+    }
+    #gift-guide-widget[data-theme="light"] .modal {
+      background: #ffffff;
+      border-color: #e0e0e0;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    }
+    .modal-overlay--open .modal { transform: translateY(0); }
+
+    /* Close */
+    .modal__close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 6px;
+      transition: color 0.15s ease;
+      z-index: 2;
+    }
+    .modal__close:hover { color: var(--text-heading); }
+
+    /* Logo */
+    .modal__logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .modal__logo-text {
+      font-family: var(--font-head);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__logo-text { color: #0a0a0a; }
+
+    /* Headline */
+    .modal__headline {
+      font-family: var(--font-body);
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 24px;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__headline { color: #0a0a0a; }
+    .modal__headline-accent { color: var(--orange); }
+
+    /* SSO buttons */
+    .modal__sso { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+    .modal__sso-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 13px 16px;
+      background: #242424;
+      border: 1px solid #383838;
+      border-radius: 8px;
+      color: #e2e2e2;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.16s ease, border-color 0.16s ease;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__sso-btn {
+      background: #f5f5f5;
+      border-color: #d8d8d8;
+      color: #1a1a1a;
+    }
+    .modal__sso-btn:hover { background: #2e2e2e; border-color: #555; }
+    #gift-guide-widget[data-theme="light"] .modal__sso-btn:hover { background: #ebebeb; border-color: #bbb; }
+
+    /* OR divider */
+    .modal__or {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 4px 0 16px;
+      color: #555;
+      font-family: var(--font-body);
+      font-size: 13px;
+    }
+    .modal__or::before, .modal__or::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #2e2e2e;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__or { color: #aaa; }
+    #gift-guide-widget[data-theme="light"] .modal__or::before,
+    #gift-guide-widget[data-theme="light"] .modal__or::after { background: #e0e0e0; }
+
+    /* Email input row */
+    .modal__email-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #242424;
+      border: 1px solid #383838;
+      border-radius: 8px;
+      padding: 0 14px;
+      margin-bottom: 10px;
+      transition: border-color 0.15s ease;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__email-wrap {
+      background: #f5f5f5;
+      border-color: #d8d8d8;
+    }
+    .modal__email-wrap:focus-within { border-color: #555; }
+    #gift-guide-widget[data-theme="light"] .modal__email-wrap:focus-within { border-color: #999; }
+    .modal__email-wrap--error { border-color: #ff4444 !important; }
+    .modal__email-icon { color: #555; font-size: 15px; flex-shrink: 0; }
+    #gift-guide-widget[data-theme="light"] .modal__email-icon { color: #aaa; }
+    .modal__email-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: #e2e2e2;
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 13px 0;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__email-input { color: #1a1a1a; }
+    .modal__email-input::placeholder { color: #555; }
+    #gift-guide-widget[data-theme="light"] .modal__email-input::placeholder { color: #aaa; }
+
+    /* Continue with Email button */
+    .modal__continue-btn {
+      width: 100%;
+      padding: 13px;
+      background: #ffffff;
+      color: #0a0a0a;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.16s ease;
+      margin-bottom: 20px;
+    }
+    .modal__continue-btn:hover { background: #e8e8e8; }
+    #gift-guide-widget[data-theme="light"] .modal__continue-btn { background: #0a0a0a; color: #fff; }
+    #gift-guide-widget[data-theme="light"] .modal__continue-btn:hover { background: #333; }
+
+    /* Legal text */
+    .modal__legal {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.6;
+      text-align: center;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__legal { color: #999; }
+    .modal__legal a { color: #777; text-underline-offset: 2px; }
+    .modal__legal a:hover { color: #e2e2e2; }
+    #gift-guide-widget[data-theme="light"] .modal__legal a:hover { color: #333; }
+
+    /* Code reveal screen */
+    .modal__code-screen {
+      text-align: center;
+      padding: 8px 0;
+    }
+    .modal__code-screen-icon { font-size: 40px; margin-bottom: 12px; }
+    .modal__code-screen-title {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    #gift-guide-widget[data-theme="light"] .modal__code-screen-title { color: #0a0a0a; }
+    .modal__code-screen-sub {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+    .modal__code {
+      display: inline-block;
+      font-family: var(--font-head);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #101010;
+      background: var(--orange);
+      padding: 12px 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      user-select: all;
+    }
+    .modal__code:hover { background: var(--orange-dark); color: #fff; }
+    .modal__code-hint {
+      font-size: 11px;
+      color: #555;
+      margin-top: 12px;
+    }
+
+    /* ── Responsive breakpoints ───────────────────────────────── */
+    @media (max-width: 1200px) {
+      .product-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 860px) {
+      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .modal__body { grid-template-columns: 1fr; }
+      .modal__divider { width: 100%; height: 1px; }
+    }
+    @media (max-width: 540px) {
+      #gift-guide-widget { padding: 0 14px 56px; }
+      .product-grid { grid-template-columns: 1fr; gap: 12px; }
+      .product-card__btns { flex-direction: column; }
+      .product-card__btn { flex: unset; min-width: unset; }
+      .guide-header { padding: 18px 0 20px; }
+      .guide-controls { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body class="w-website">
+
+<!-- ── TheGamer Header (from static page source; nav JS non-functional in prototype) ── -->
+<header id="js-header" class="w-header" data-type="header">
+  <div class="wrapper main-navigation">
+    <div class="header-nav nav-menu has-secondary-header">
+      <div class="header-section nav-left">
+        <label class="menu-icon topnav-icon icon i-menu-new css-menu--toggle" for="side_menu"><span>Menu</span></label>
+      </div>
+      <div class="header-section nav-center">
+        <a href="https://www.thegamer.com/" rel="home" class="header-logo" target="_blank">
+          <picture class="header-full-logo">
+            <source srcset="https://static0.thegamerimages.com/assets/images/tg-logo-full-colored-light.svg?v=3.6" media="(prefers-color-scheme: dark)">
+            <img src="https://static0.thegamerimages.com/assets/images/tg-logo-full-colored-light.svg?v=3.6" alt="TheGamer logo" title="TheGamer" height="67" width="317" />
+          </picture>
+        </a>
+      </div>
+      <div class="header-section nav-right static">
+        <div class="nav-elements w-drop-down">
+          <li class="nav-elements">
+            <a href="#" class="nav-link nav-link-user logged-in icon">
+              <img src="https://static0.thegamerimages.com/wordpress/wordpress/wp-content/uploads/profilepics/TG-avatar-1.png" alt="User Display Picture" style="display:block;" loading="lazy">
+              <div class="nav-username is-desktop-only">X User</div>
+            </a>
+          </li>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="w-subheader default-menu" data-type="header">
+  <div class="wrapper w-subheader-menu">
+    <div class="subheader-menu">
+      <div class="subheader-menu-list">
+        <div class="subheader-menu-item"><a href="https://www.thegamer.com/tag/crimson-desert/" target="_blank"><div class="subheader-item-label">Crimson Desert</div></a></div>
+        <div class="subheader-menu-item"><a href="https://www.thegamer.com/tag/pokemon-pokopia/" target="_blank"><div class="subheader-item-label">Pokemon Pokopia</div></a></div>
+        <div class="subheader-menu-item"><a href="https://www.thegamer.com/tag/monster-hunter-stories-3-twisted-reflection/" target="_blank"><div class="subheader-item-label">Monster Hunter Stories 3</div></a></div>
+        <div class="subheader-menu-item"><a href="https://www.thegamer.com/tag/resident-evil-requiem/" target="_blank"><div class="subheader-item-label">Resident Evil Requiem</div></a></div>
+        <div class="subheader-menu-item"><a href="https://www.thegamer.com/gaming-events-conventions-2025/" target="_blank"><div class="subheader-item-label">Events</div></a></div>
+        <div class="subheader-menu-item"><a href="https://www.thegamer.com/video-game-release-dates-2026/" target="_blank"><div class="subheader-item-label">Release Dates</div></a></div>
+      </div>
+    </div>
+  </div>
+</nav>
+<!-- ── /TheGamer Header ── -->
+
+<div id="gift-guide-widget" data-theme="dark">
+
+  <!-- Prototype controls (dark/light + mobile/desktop toggles) -->
+  <div class="guide-topbar">
+    <div class="guide-controls">
+      <button class="ctrl-btn ctrl-btn--theme" id="btn-theme" title="Toggle light/dark mode">☾ Dark</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn ctrl-btn--active" id="btn-view-desktop" title="Desktop layout">🖥 Desktop</button>
+      <button class="ctrl-btn" id="btn-view-mobile" title="Mobile layout">📱 Mobile</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="guide-header">
+    <h1 class="guide-header__title"><span>TheGamer</span><br>2026 Buyer's Guide</h1>
+    <p class="guide-header__subtitle">Games, gadgets, gifts, and gear chosen exclusively for gamers, by gamers.</p>
+    <div class="guide-header__follow">
+      <button class="guide-header__follow-btn" id="btn-follow-page">
+        <svg class="follow-icon" width="12" height="15" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1.5h10v13l-5-3.5-5 3.5V1.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        Follow This Page
+      </button>
+    </div>
+  </header>
+
+  <!-- Category filters -->
+  <div class="filter-bar-wrapper">
+    <div class="filter-bar" id="filter-bar"></div>
+  </div>
+
+  <!-- Sort & deals bar -->
+  <div class="sort-bar-wrapper" id="sort-bar"></div>
+
+  <!-- Loading -->
+  <div id="loading-state" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading gift picks…</p>
+  </div>
+
+  <!-- Grid -->
+  <div id="product-grid" class="product-grid"></div>
+
+  <!-- ── Discount Code Modal ────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+  <div class="modal">
+    <button class="modal__close" id="modal-close" aria-label="Close">&#x2715;</button>
+
+    <!-- Auth screen -->
+    <div id="modal-auth">
+      <div class="modal__logo">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2L38 20L20 38L2 20Z" fill="#ff6b0f"/>
+          <line x1="20" y1="2" x2="20" y2="38" stroke="#1a1a1a" stroke-width="2.5"/>
+          <line x1="2" y1="20" x2="38" y2="20" stroke="#1a1a1a" stroke-width="2.5"/>
+        </svg>
+        <span class="modal__logo-text">THEGAMER</span>
+      </div>
+
+      <h2 class="modal__headline" id="modal-headline">
+        Log in or Create an Account <span class="modal__headline-accent">For Free</span>
+      </h2>
+
+      <div class="modal__sso">
+        <button class="modal__sso-btn" id="btn-google">
+          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </button>
+        <button class="modal__sso-btn" id="btn-openpass">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="11" fill="#6c5ce7"/>
+            <circle cx="12" cy="12" r="4.5" fill="white"/>
+            <circle cx="12" cy="12" r="1.8" fill="#6c5ce7"/>
+          </svg>
+          Continue with OpenPass
+        </button>
+      </div>
+
+      <div class="modal__or">or</div>
+
+      <div class="modal__email-wrap" id="modal-email-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="modal__email-icon">
+          <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <input class="modal__email-input" type="email" id="modal-email" placeholder="Enter your email address" autocomplete="email" />
+      </div>
+
+      <button class="modal__continue-btn" id="btn-email-continue">Continue with Email</button>
+
+      <p class="modal__legal">By creating an account, you agree to our <a href="#" class="modal__legal-link">Terms of Use</a> and <a href="#" class="modal__legal-link">Privacy Policy</a>. You also agree to receive our newsletters; you can unsubscribe any time.</p>
+    </div>
+
+    <!-- Code reveal screen -->
+    <div class="modal__code-screen" id="modal-code-screen" style="display:none">
+      <div class="modal__logo" style="margin-bottom:16px">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2L38 20L20 38L2 20Z" fill="#ff6b0f"/>
+          <line x1="20" y1="2" x2="20" y2="38" stroke="#1a1a1a" stroke-width="2.5"/>
+          <line x1="2" y1="20" x2="38" y2="20" stroke="#1a1a1a" stroke-width="2.5"/>
+        </svg>
+        <span class="modal__logo-text">THEGAMER</span>
+      </div>
+      <div class="modal__code-screen-title">Your Exclusive Code</div>
+      <div class="modal__code-screen-sub">Click the code below to copy it to your clipboard.</div>
+      <div class="modal__code" id="modal-code" title="Click to copy">THEGAMER15</div>
+      <div class="modal__code-hint">Use at checkout on Amazon. Valid for 48 hours.</div>
+    </div>
+  </div>
+</div><!-- /#modal-overlay -->
+
+</div><!-- /#gift-guide-widget -->
+
+<script>
+// ============================================================
+//  CONFIGURATION — paste your published Google Sheet CSV URL
+// ============================================================
+const GOOGLE_SHEET_CSV_URL = "YOUR_LINK_HERE";
+// ============================================================
+
+// ── State ─────────────────────────────────────────────────────
+const state = { category: "All", sort: null, dealsOnly: false, allData: [] };
+
+// ── Dummy data (48 products) ───────────────────────────────────
+const DUMMY_DATA = [
+  // ── Audio ──────────────────────────────────────────────────
+  { Title: "Sony WH-1000XM5",          ImageURL: "https://picsum.photos/seed/sony-xm5/600/400",    Price: "$229.99", OriginalPrice: "$349.99", Description: "Industry-leading noise cancellation with 30-hour battery life and crystal-clear call quality. The gold standard in wireless headphones.",           Category: "Gadgets: Audio", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Sony",     Button2Link: "#" },
+  { Title: "Apple AirPods Pro 2nd Gen", ImageURL: "https://picsum.photos/seed/airpods2/600/400",    Price: "$169.99", OriginalPrice: "$249.99", Description: "Active noise cancellation, Transparency mode, and Adaptive Audio in one tiny package. Now with USB-C and lossless audio.",                    Category: "Gadgets: Audio", Button1Text: "Buy at Apple",    Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Bose SoundLink Flex",       ImageURL: "https://picsum.photos/seed/bose-flex/600/400",   Price: "$149.00", OriginalPrice: "",         Description: "Waterproof, dustproof, and drop-proof with surprisingly big sound in a bottle-sized form factor. Goes wherever your adventures take you.",    Category: "Gadgets: Audio", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Bose",     Button2Link: "#" },
+  { Title: "JBL Charge 5",              ImageURL: "https://picsum.photos/seed/jbl-charge5/600/400", Price: "$129.99", OriginalPrice: "$179.99", Description: "Massive sound, 20-hour playtime, and a built-in power bank. IP67 waterproof rating means it thrives at the beach, pool, and beyond.",           Category: "Gadgets: Audio", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at JBL",      Button2Link: "#" },
+  { Title: "Sennheiser HD 560S",        ImageURL: "https://picsum.photos/seed/senn-hd560/600/400",  Price: "$99.95",  OriginalPrice: "$149.95", Description: "Open-back audiophile headphones delivering a wide, natural soundstage at an approachable price. Perfect for serious listening sessions.",         Category: "Gadgets: Audio", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "",               Button2Link: "" },
+  { Title: "Marshall Emberton III",     ImageURL: "https://picsum.photos/seed/marshall-emb/600/400",Price: "$99.99",  OriginalPrice: "$129.99", Description: "True Marshall sound in a compact form. 30-hour battery, multi-directional sound, and a rock-solid build that earns every scratch.",              Category: "Gadgets: Audio", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Marshall", Button2Link: "#" },
+
+  // ── Gaming ─────────────────────────────────────────────────
+  { Title: "Nintendo Switch OLED",      ImageURL: "https://picsum.photos/seed/switch-oled/600/400", Price: "$299.99", OriginalPrice: "$349.99", Description: "The 7-inch OLED screen and enhanced audio make this the definitive Nintendo hybrid console. Play anywhere, any time, with anyone.",              Category: "Games: AAA",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Nintendo", Button2Link: "#" },
+  { Title: "PS5 DualSense Controller",  ImageURL: "https://picsum.photos/seed/dualsense5/600/400",  Price: "$49.99",  OriginalPrice: "$69.99",  Description: "Haptic feedback and adaptive triggers that let you feel every explosion, raindrop, and bowstring pull. The controller that redefined immersion.",  Category: "Games: AAA",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Razer BlackShark V2 X",     ImageURL: "https://picsum.photos/seed/razer-v2x/600/400",   Price: "$59.99",  OriginalPrice: "",         Description: "7.1 surround sound, TriForce 50mm drivers, and a HyperClear cardioid mic. The competitive edge your setup has been missing.",                   Category: "Gadgets: Audio", Button1Text: "Buy at Razer",    Button1Link: "#", Button2Text: "Buy at Amazon",   Button2Link: "#" },
+  { Title: "LEGO Technic Defender",     ImageURL: "https://picsum.photos/seed/lego-lr/600/400",     Price: "$159.99", OriginalPrice: "$199.99", Description: "2,573 pieces with working suspension and a detailed interior. A showstopper build for adults and a trophy piece when it's done.",                 Category: "Games: Tabletop",Button1Text: "Buy at LEGO",     Button1Link: "#", Button2Text: "Buy at Amazon",   Button2Link: "#" },
+  { Title: "Xbox Series X",             ImageURL: "https://picsum.photos/seed/xbox-sx/600/400",     Price: "$449.99", OriginalPrice: "",         Description: "The world's most powerful console. 4K gaming at up to 120fps, 1TB SSD, and backwards compatibility with thousands of Xbox titles.",              Category: "Games: AAA",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Steam Deck OLED",           ImageURL: "https://picsum.photos/seed/steam-deck/600/400",  Price: "$499.99", OriginalPrice: "$649.99", Description: "The ultimate handheld gaming PC now with a vibrant OLED screen, longer battery, and faster Wi-Fi. Your entire Steam library in your hands.",       Category: "Games: AAA",     Button1Text: "Buy at Steam",    Button1Link: "#", Button2Text: "",               Button2Link: "" },
+  { Title: "Logitech G Pro X Superlight 2", ImageURL: "https://picsum.photos/seed/gpro-sl2/600/400",Price: "$129.99", OriginalPrice: "$159.99", Description: "Ultra-lightweight at just 60g with HERO 2 sensor precision. The mouse tournament pros actually use when the stakes are highest.",                  Category: "Gadgets: PC & Accessories", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Logitech", Button2Link: "#" },
+  { Title: "SteelSeries Apex Pro TKL",  ImageURL: "https://picsum.photos/seed/apex-pro/600/400",    Price: "$149.99", OriginalPrice: "$199.99", Description: "Adjustable actuation magnetic switches, OLED display, and rapid trigger mode. The keyboard built for the most competitive players on the planet.", Category: "Gadgets: PC & Accessories", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at SteelSeries", Button2Link: "#" },
+  { Title: "HyperX Cloud Alpha Wireless", ImageURL: "https://picsum.photos/seed/hyperx-ca/600/400", Price: "$99.99",  OriginalPrice: "$199.99", Description: "Up to 300 hours of battery life — yes, three hundred. Dual chamber drivers deliver clear, powerful sound without any wires to manage.",           Category: "Gadgets: Audio", Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+
+  // ── Smart Home ─────────────────────────────────────────────
+  { Title: "Amazon Echo Show 10",       ImageURL: "https://picsum.photos/seed/echo-show10/600/400", Price: "$179.99", OriginalPrice: "$219.99", Description: "A 10-inch HD screen that automatically rotates to face you. Video calls, smart home controls, and step-by-step recipes — all hands-free.",        Category: "Gadgets: Smart Home",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "",               Button2Link: "" },
+  { Title: "Philips Hue Starter Kit",   ImageURL: "https://picsum.photos/seed/hue-starter/600/400", Price: "$79.99",  OriginalPrice: "",         Description: "16 million colors and smart scene automation out of the box. Works with Alexa, Google Assistant, and Apple HomeKit from day one.",               Category: "Gadgets: Smart Home",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Google Nest Mini (2nd Gen)",ImageURL: "https://picsum.photos/seed/nest-mini2/600/400",  Price: "$21.99",  OriginalPrice: "$35.00",  Description: "Small speaker, surprisingly big sound. Set timers, play music, control your smart home, and get answers with just your voice.",                    Category: "Gadgets: Smart Home",     Button1Text: "Buy at Google",   Button1Link: "#", Button2Text: "Buy at Target",   Button2Link: "#" },
+  { Title: "Arlo Pro 5S (2-Pack)",      ImageURL: "https://picsum.photos/seed/arlo-pro5/600/400",   Price: "$199.99", OriginalPrice: "$299.99", Description: "2K HDR security cameras with color night vision and an integrated spotlight. Completely wire-free with 6-month battery life.",                     Category: "Gadgets: Smart Home",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Eufy RoboVac 11S",          ImageURL: "https://picsum.photos/seed/eufy-robovac/600/400",Price: "$129.99", OriginalPrice: "$229.99", Description: "Ultra-slim at 2.85 inches, whisper-quiet at 55dB, and smart enough to handle daily cleaning without any intervention from you.",                   Category: "Gadgets: Smart Home",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Eufy",     Button2Link: "#" },
+  { Title: "TP-Link Deco WiFi 6 (3-Pack)", ImageURL: "https://picsum.photos/seed/tp-deco/600/400", Price: "$149.99", OriginalPrice: "$199.99", Description: "Blanket your entire home in fast, reliable WiFi 6. Covers up to 5,800 sq ft with a self-healing mesh network and easy app control.",              Category: "Gadgets: Smart Home",     Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "",               Button2Link: "" },
+
+  // ── Under $50 ──────────────────────────────────────────────
+  { Title: "Anker 65W 3-Port Charger",  ImageURL: "https://picsum.photos/seed/anker-65w/600/400",   Price: "$27.99",  OriginalPrice: "$35.99",  Description: "Charge your laptop, phone, and tablet simultaneously from one compact block. Fast, reliable, and small enough to live in any bag.",              Category: "Gifts: Under $50",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Anker",    Button2Link: "#" },
+  { Title: "Tile Mate (4-Pack)",        ImageURL: "https://picsum.photos/seed/tile-4pk/600/400",    Price: "$44.99",  OriginalPrice: "",         Description: "Never lose your keys, wallet, or bag again. Attach a Tile to anything and find it instantly with a loud ring from the Tile app.",               Category: "Gifts: Under $50",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Target",   Button2Link: "#" },
+  { Title: "MagSafe Leather Wallet",    ImageURL: "https://picsum.photos/seed/magsafe-wallet/600/400",Price: "$39.00",OriginalPrice: "$49.00",  Description: "Snap on, snap off. Slim full-grain leather holds three cards and attaches magnetically to any MagSafe-compatible iPhone.",                        Category: "Gifts: Under $50",      Button1Text: "Buy at Apple",    Button1Link: "#", Button2Text: "",               Button2Link: "" },
+  { Title: "Belkin MagSafe Car Mount",  ImageURL: "https://picsum.photos/seed/belkin-car/600/400",  Price: "$34.99",  OriginalPrice: "$44.99",  Description: "15W MagSafe wireless charging while navigating. No fussing with clamps or cradles — just snap your iPhone on and drive.",                        Category: "Gifts: Under $50",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Belkin",   Button2Link: "#" },
+  { Title: "Cable Matters USB-C Hub",   ImageURL: "https://picsum.photos/seed/cable-hub/600/400",   Price: "$29.99",  OriginalPrice: "$39.99",  Description: "7-in-1 hub with 4K HDMI, 100W pass-through charging, SD card slots, and USB-A ports. Turn one USB-C port into a full workstation.",            Category: "Gifts: Under $50",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "",               Button2Link: "" },
+  { Title: "iOttie Easy One Touch 5",   ImageURL: "https://picsum.photos/seed/iottie-ot5/600/400",  Price: "$24.99",  OriginalPrice: "",         Description: "One-button mounting for any phone, strong suction cup base, and 360-degree rotation. The most frustration-free car mount you'll ever own.",      Category: "Gifts: Under $50",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at iOttie",   Button2Link: "#" },
+  { Title: "Spigen ArcField Charger",   ImageURL: "https://picsum.photos/seed/spigen-arc/600/400",  Price: "$22.99",  OriginalPrice: "$35.99",  Description: "MagSafe-compatible 15W wireless pad with a premium aluminum body and LED indicator. Clean desk energy at a fraction of Apple's price.",           Category: "Gifts: Under $50",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "",               Button2Link: "" },
+
+  // ── Fitness ────────────────────────────────────────────────
+  { Title: "Garmin Forerunner 255",     ImageURL: "https://picsum.photos/seed/garmin-fr255/600/400",Price: "$249.99", OriginalPrice: "$299.99", Description: "Advanced training metrics, multi-band GPS, and up to 14 days of battery life. Loved equally by serious runners and casual athletes.",              Category: "Gear: Fitness",        Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Garmin",   Button2Link: "#" },
+  { Title: "Fitbit Charge 6",           ImageURL: "https://picsum.photos/seed/fitbit-ch6/600/400",  Price: "$99.95",  OriginalPrice: "$159.99", Description: "Built-in GPS, ECG app, and Google Maps integration. One of the most capable fitness bands ever made, now at its lowest price.",                   Category: "Gear: Fitness",        Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Whoop 4.0 Band",            ImageURL: "https://picsum.photos/seed/whoop-40/600/400",    Price: "$239.00", OriginalPrice: "$299.00", Description: "24/7 strain, recovery, and sleep tracking with no screen distractions. The wearable athletes and coaches swear by for unlocking peak performance.", Category: "Gear: Fitness",        Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at WHOOP",    Button2Link: "#" },
+  { Title: "Polar Ignite 3",            ImageURL: "https://picsum.photos/seed/polar-ign3/600/400",  Price: "$199.99", OriginalPrice: "$299.99", Description: "AMOLED display, hill splitter training tool, and nightly recharge guidance. Polar's best all-round fitness watch for every type of athlete.",       Category: "Gear: Fitness",        Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Polar",    Button2Link: "#" },
+  { Title: "Theragun Mini 2.0",         ImageURL: "https://picsum.photos/seed/theragun-m2/600/400", Price: "$149.99", OriginalPrice: "$199.99", Description: "Pocket-sized percussion therapy with 3 speed settings and 150 minutes of battery. Faster recovery wherever you train, travel, or sit too long.",    Category: "Gear: Fitness",        Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Therabody",Button2Link: "#" },
+
+  // ── Monitors ───────────────────────────────────────────────
+  { Title: "LG 27\" UltraGear 4K 144Hz",ImageURL: "https://picsum.photos/seed/lg-ultragear/600/400",Price: "$399.99", OriginalPrice: "$499.99", Description: "4K IPS Nano display with 144Hz refresh, HDMI 2.1, and Nvidia G-Sync Compatible. Everything you could want in a gaming monitor under $400.",     Category: "Gadgets: Monitors",       Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Samsung Odyssey G7 32\"",   ImageURL: "https://picsum.photos/seed/odyssey-g7/600/400",  Price: "$449.99", OriginalPrice: "$599.99", Description: "1000R curved QLED panel with 240Hz refresh and 1ms response. Deep blacks, vivid colors, and a curvature that puts you inside the game.",           Category: "Gadgets: Monitors",       Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Samsung",  Button2Link: "#" },
+  { Title: "ASUS ROG Swift PG279QM",    ImageURL: "https://picsum.photos/seed/rog-swift/600/400",   Price: "$449.99", OriginalPrice: "$549.99", Description: "1440p IPS at 240Hz with Fast IPS technology. Professional-grade color accuracy and blazing refresh for competitive and creative work alike.",         Category: "Gadgets: Monitors",       Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at ASUS",     Button2Link: "#" },
+  { Title: "Dell S2722DGM 27\"",        ImageURL: "https://picsum.photos/seed/dell-s2722/600/400",  Price: "$229.99", OriginalPrice: "$329.99", Description: "1440p curved VA panel at 165Hz for under $230. Dell's no-nonsense gaming monitor punches well above its price with rich, deep contrast.",            Category: "Gadgets: Monitors",       Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Dell",     Button2Link: "#" },
+  { Title: "BenQ MOBIUZ EX2710U",       ImageURL: "https://picsum.photos/seed/benq-mobiuz/600/400", Price: "$379.99", OriginalPrice: "$449.99", Description: "4K IPS at 144Hz with HDR600 and a built-in treVolo speaker system. BenQ's best all-rounder for both gaming and content consumption.",              Category: "Gadgets: Monitors",       Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at BenQ",     Button2Link: "#" },
+  { Title: "Alienware AW2723DF 27\"",   ImageURL: "https://picsum.photos/seed/alienware-aw27/600/400",Price: "$499.99",OriginalPrice: "$649.99", Description: "IPS Black panel at 280Hz with exceptional contrast for an IPS display. Alienware's most versatile monitor for the gamer who refuses to compromise.", Category: "Gadgets: Monitors",       Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Dell",     Button2Link: "#" },
+
+  // ── PC & Accessories ───────────────────────────────────────
+  { Title: "Keychron K2 Pro Wireless",  ImageURL: "https://picsum.photos/seed/keychron-k2/600/400", Price: "$89.99",  OriginalPrice: "$119.99", Description: "Hot-swappable 75% mechanical keyboard with Bluetooth 5.1, RGB backlighting, and Mac/Windows compatibility. The clacking begins here.",          Category: "Gadgets: PC & Accessories",Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Keychron", Button2Link: "#" },
+  { Title: "Elgato Stream Deck MK.2",   ImageURL: "https://picsum.photos/seed/elgato-sd/600/400",   Price: "$129.99", OriginalPrice: "$149.99", Description: "15 customizable LCD keys to control your stream, apps, and workflow with one tap. The most powerful macro pad a creator or gamer can own.",          Category: "Gadgets: PC & Accessories",Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Logitech MX Master 3S",     ImageURL: "https://picsum.photos/seed/mx-master3s/600/400", Price: "$79.99",  OriginalPrice: "$99.99",  Description: "MagSpeed electromagnetic scroll wheel, 8K DPI, and near-silent clicks. The mouse that makes productivity feel genuinely good.",                     Category: "Gadgets: PC & Accessories",Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Logitech", Button2Link: "#" },
+  { Title: "Samsung 990 Pro SSD 2TB",   ImageURL: "https://picsum.photos/seed/samsung-990/600/400", Price: "$139.99", OriginalPrice: "$199.99", Description: "PCIe 4.0 NVMe speeds up to 7,450 MB/s with a heat management system built for sustained workloads. The fastest consumer SSD money can buy.",       Category: "Gadgets: PC & Accessories",Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Samsung",  Button2Link: "#" },
+  { Title: "Corsair K70 RGB Pro TKL",   ImageURL: "https://picsum.photos/seed/corsair-k70/600/400", Price: "$109.99", OriginalPrice: "$159.99", Description: "Cherry MX switches, per-key RGB, and a tournament-grade 8000Hz polling rate. A full-size feel in a compact frame built to win.",                   Category: "Gadgets: PC & Accessories",Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Corsair",  Button2Link: "#" },
+
+  // ── Wearables ──────────────────────────────────────────────
+  { Title: "Apple Watch Series 9",      ImageURL: "https://picsum.photos/seed/awatch-s9/600/400",   Price: "$329.99", OriginalPrice: "$399.99", Description: "The S9 chip makes Siri faster and on-device. Double Tap gesture, crash detection, and the brightest Apple Watch display ever made.",              Category: "Gear: Wearables",      Button1Text: "Buy at Apple",    Button1Link: "#", Button2Text: "Buy at Best Buy", Button2Link: "#" },
+  { Title: "Samsung Galaxy Watch 6",    ImageURL: "https://picsum.photos/seed/galaxy-w6/600/400",   Price: "$219.99", OriginalPrice: "$299.99", Description: "Advanced sleep coaching, body composition analysis, and Wear OS 4. Samsung's best smartwatch for Android users who want it all.",                   Category: "Gear: Wearables",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Samsung",  Button2Link: "#" },
+  { Title: "Amazfit GTR 4",             ImageURL: "https://picsum.photos/seed/amazfit-gtr4/600/400",Price: "$99.99",  OriginalPrice: "$149.99", Description: "Dual-band GPS, 150+ sports modes, and a stunning AMOLED display for under $100. More smartwatch per dollar than anything else on this list.",       Category: "Gear: Wearables",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "",               Button2Link: "" },
+  { Title: "Fossil Gen 6 Wellness",     ImageURL: "https://picsum.photos/seed/fossil-gen6/600/400", Price: "$149.99", OriginalPrice: "$295.00", Description: "Wear OS with Google Assistant, SpO2 tracking, and a rotating crown for navigation. A smartwatch that actually looks like a proper watch.",          Category: "Gear: Wearables",      Button1Text: "Buy at Amazon",   Button1Link: "#", Button2Text: "Buy at Fossil",   Button2Link: "#" },
+];
+
+// ── Bootstrap ─────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  initControls();
+  document.getElementById("btn-follow-page").addEventListener("click", function() {
+    this.classList.toggle("active");
+  });
+  if (GOOGLE_SHEET_CSV_URL && GOOGLE_SHEET_CSV_URL !== "YOUR_LINK_HERE") {
+    fetchSheetData(GOOGLE_SHEET_CSV_URL);
+  } else {
+    renderWidget(DUMMY_DATA);
+  }
+  initModal();
+});
+
+// ── Theme & view controls ─────────────────────────────────────
+function initControls() {
+  const btnTheme   = document.getElementById("btn-theme");
+  const btnDesktop = document.getElementById("btn-view-desktop");
+  const btnMobile  = document.getElementById("btn-view-mobile");
+  const widget     = document.getElementById("gift-guide-widget");
+
+  // Theme toggle — scoped to the widget div, not <html>, so it works
+  // when embedded inside TheGamer's static page without touching the host page.
+  btnTheme.addEventListener("click", () => {
+    const isLight = widget.getAttribute("data-theme") === "light";
+    widget.setAttribute("data-theme", isLight ? "dark" : "light");
+    btnTheme.textContent = isLight ? "☾ Dark" : "☀ Light";
+    btnTheme.classList.toggle("ctrl-btn--active", !isLight);
+  });
+
+  // View toggle: Desktop
+  btnDesktop.addEventListener("click", () => {
+    widget.classList.remove("view-mobile");
+    widget.classList.add("view-desktop");
+    btnDesktop.classList.add("ctrl-btn--active");
+    btnMobile.classList.remove("ctrl-btn--active");
+  });
+
+  // View toggle: Mobile
+  btnMobile.addEventListener("click", () => {
+    widget.classList.remove("view-desktop");
+    widget.classList.add("view-mobile");
+    btnMobile.classList.add("ctrl-btn--active");
+    btnDesktop.classList.remove("ctrl-btn--active");
+  });
+}
+
+// ── Fetch ─────────────────────────────────────────────────────
+function fetchSheetData(url) {
+  Papa.parse(url, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: ({ data }) => {
+      hideLoading();
+      data.length ? renderWidget(data) : showError("No products found in the sheet.");
+    },
+    error: (err) => {
+      console.error(err);
+      hideLoading();
+      showError("Couldn't load sheet data — showing demo products instead.");
+      renderWidget(DUMMY_DATA);
+    },
+  });
+}
+
+// ── Filter group definitions ──────────────────────────────────
+const FILTER_GROUPS = {
+  Games:   ["Games: AAA", "Games: Indie", "Games: TCG", "Games: Tabletop"],
+  Gadgets: ["Gadgets: Audio", "Gadgets: Smart Home", "Gadgets: Monitors", "Gadgets: PC & Accessories"],
+  Gifts:   ["Gifts: Under $50", "Gifts: Stocking Stuffers", "Gifts: Premium"],
+  Gear:    ["Gear: Fitness", "Gear: Wearables"],
+};
+
+// All subcategories selected by default
+const activeSubcategories = new Set(Object.values(FILTER_GROUPS).flat());
+
+// ── Render ────────────────────────────────────────────────────
+function renderWidget(data) {
+  hideLoading();
+  state.allData = data;
+  renderFilters();
+  renderSortBar();
+  applyFilters();
+}
+
+function renderFilters() {
+  const bar = document.getElementById("filter-bar");
+  bar.innerHTML = "";
+
+  // "All Filters" dropdown group
+  const allGroup = document.createElement("div");
+  allGroup.className = "filter-group";
+
+  const allBtn = document.createElement("button");
+  allBtn.className = "filter-btn";
+  allBtn.id = "filter-all-btn";
+  const allLabel = document.createElement("span");
+  allLabel.id = "filter-all-label";
+  allBtn.appendChild(allLabel);
+  const allArrow = document.createElement("span");
+  allArrow.className = "filter-btn__arrow";
+  allArrow.textContent = "▾";
+  allBtn.appendChild(allArrow);
+
+  const allPanel = document.createElement("div");
+  allPanel.className = "filter-dropdown";
+
+  allPanel.appendChild(makeFilterAction("✓  All Filters", () => {
+    selectAllFilters();
+    updateAllPanelCheckboxes();
+    closeAllDropdowns();
+  }));
+  const allSep = document.createElement("div");
+  allSep.className = "filter-dropdown__sep";
+  allPanel.appendChild(allSep);
+
+  Object.keys(FILTER_GROUPS).forEach(groupName => {
+    const subcats = FILTER_GROUPS[groupName];
+    const row = document.createElement("div");
+    row.className = "filter-all-row";
+    row.dataset.group = groupName;
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "filter-all-row__cb";
+    cb.checked = subcats.every(s => activeSubcategories.has(s));
+    cb.addEventListener("click", e => e.stopPropagation());
+    cb.addEventListener("change", () => {
+      subcats.forEach(s => cb.checked ? activeSubcategories.add(s) : activeSubcategories.delete(s));
+      syncGroupCheckboxes();
+      updateAllBtnState(document.getElementById("filter-all-btn"));
+      applyFilters();
+    });
+
+    const lbl = document.createElement("span");
+    lbl.className = "filter-all-row__label";
+    lbl.textContent = groupName;
+    lbl.addEventListener("click", e => { e.stopPropagation(); cb.click(); });
+
+    const onlyBtn = document.createElement("button");
+    onlyBtn.className = "filter-all-row__only";
+    onlyBtn.textContent = "Only";
+    onlyBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      selectOnlyGroup(groupName);
+      updateAllPanelCheckboxes();
+    });
+
+    row.appendChild(cb);
+    row.appendChild(lbl);
+    row.appendChild(onlyBtn);
+    allPanel.appendChild(row);
+  });
+
+  allBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = allPanel.classList.contains("filter-dropdown--open");
+    closeAllDropdowns();
+    if (!isOpen) {
+      allPanel.classList.add("filter-dropdown--open");
+      allBtn.classList.add("filter-btn--open");
+    }
+  });
+
+  allGroup.appendChild(allBtn);
+  allGroup.appendChild(allPanel);
+  bar.appendChild(allGroup);
+  updateAllBtnState(allBtn);
+
+  Object.entries(FILTER_GROUPS).forEach(([groupName, subcats]) => {
+    const group = document.createElement("div");
+    group.className = "filter-group";
+    group.dataset.groupName = groupName;
+
+    const btn = document.createElement("button");
+    btn.className = "filter-btn";
+
+    // Group-level checkbox
+    const groupCb = document.createElement("input");
+    groupCb.type = "checkbox";
+    groupCb.className = "filter-group__cb";
+    groupCb.addEventListener("click", e => e.stopPropagation());
+    groupCb.addEventListener("change", () => {
+      subcats.forEach(s => groupCb.checked ? activeSubcategories.add(s) : activeSubcategories.delete(s));
+      panel.querySelectorAll("input[type='checkbox']").forEach(cb => {
+        cb.checked = groupCb.checked;
+        cb.indeterminate = false;
+      });
+      groupCb.indeterminate = false;
+      updateFilterBtnState(btn, subcats, groupCb);
+      updateAllBtnState(document.getElementById("filter-all-btn"));
+      applyFilters();
+    });
+
+    btn.appendChild(groupCb);
+    btn.appendChild(document.createTextNode("\u00a0" + groupName + "\u00a0"));
+    const arrow = document.createElement("span");
+    arrow.className = "filter-btn__arrow";
+    arrow.textContent = "▾";
+    btn.appendChild(arrow);
+
+    btn.addEventListener("click", (e) => {
+      if (e.target === groupCb) return;
+      e.stopPropagation();
+      const isOpen = panel.classList.contains("filter-dropdown--open");
+      document.querySelectorAll(".filter-dropdown--open").forEach(p => {
+        p.classList.remove("filter-dropdown--open");
+        p.previousElementSibling.classList.remove("filter-btn--open");
+      });
+      if (!isOpen) {
+        panel.classList.add("filter-dropdown--open");
+        btn.classList.add("filter-btn--open");
+      }
+    });
+
+    const panel = document.createElement("div");
+    panel.className = "filter-dropdown";
+
+    subcats.forEach(subcat => {
+      const label = document.createElement("label");
+      label.className = "filter-dropdown__item";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = subcat;
+      checkbox.checked = activeSubcategories.has(subcat);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) activeSubcategories.add(subcat);
+        else activeSubcategories.delete(subcat);
+        updateFilterBtnState(btn, subcats, groupCb);
+        updateAllBtnState(document.getElementById("filter-all-btn"));
+        applyFilters();
+      });
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(subcat.split(": ")[1] || subcat));
+      panel.appendChild(label);
+    });
+
+    group.appendChild(btn);
+    group.appendChild(panel);
+    bar.appendChild(group);
+
+    updateFilterBtnState(btn, subcats, groupCb);
+  });
+
+  const resetLink = document.createElement("button");
+  resetLink.className = "filter-reset-link";
+  resetLink.textContent = "Reset Filters";
+  resetLink.addEventListener("click", () => {
+    selectAllFilters();
+    const under50 = document.getElementById("btn-under50");
+    if (under50) under50.classList.remove("sort-btn--active");
+  });
+  bar.appendChild(resetLink);
+
+  document.addEventListener("click", closeAllDropdowns);
+}
+
+function updateFilterBtnState(btn, subcats, groupCb) {
+  const checkedCount = subcats.filter(s => activeSubcategories.has(s)).length;
+  btn.classList.toggle("filter-btn--partial", checkedCount > 0 && checkedCount < subcats.length);
+  if (groupCb) {
+    groupCb.checked = checkedCount === subcats.length;
+    groupCb.indeterminate = checkedCount > 0 && checkedCount < subcats.length;
+  }
+}
+
+function updateAllBtnState(btn) {
+  if (!btn) return;
+  const allSubcats = Object.values(FILTER_GROUPS).flat();
+  const allSelected = allSubcats.every(s => activeSubcategories.has(s));
+
+  // Detect if exactly one group's subcats are all that's selected
+  let onlyGroup = null;
+  if (!allSelected) {
+    for (const [groupName, subcats] of Object.entries(FILTER_GROUPS)) {
+      const nonGroupActive = allSubcats.filter(s => !subcats.includes(s) && activeSubcategories.has(s)).length;
+      if (nonGroupActive === 0 && subcats.some(s => activeSubcategories.has(s))) {
+        onlyGroup = groupName;
+        break;
+      }
+    }
+  }
+
+  btn.classList.toggle("filter-btn--all-active", allSelected);
+  btn.classList.toggle("filter-btn--partial", !allSelected);
+
+  const label = document.getElementById("filter-all-label");
+  if (label) {
+    if (allSelected)       label.textContent = "✓ All Filters\u00a0";
+    else if (onlyGroup)    label.textContent = "Only: " + onlyGroup + "\u00a0";
+    else                   label.textContent = "All Filters\u00a0";
+  }
+}
+
+function makeFilterAction(text, onClick) {
+  const btn = document.createElement("button");
+  btn.className = "filter-dropdown__action";
+  btn.textContent = text;
+  btn.addEventListener("click", (e) => { e.stopPropagation(); onClick(); });
+  return btn;
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll(".filter-dropdown--open").forEach(p => {
+    p.classList.remove("filter-dropdown--open");
+    p.previousElementSibling.classList.remove("filter-btn--open");
+  });
+}
+
+function syncGroupCheckboxes() {
+  document.querySelectorAll(".filter-group[data-group-name]").forEach(group => {
+    const subcats = FILTER_GROUPS[group.dataset.groupName];
+    if (!subcats) return;
+    const btn = group.querySelector(".filter-btn");
+    const groupCb = group.querySelector(".filter-group__cb");
+    group.querySelectorAll(".filter-dropdown input[type='checkbox']").forEach(cb => {
+      cb.checked = activeSubcategories.has(cb.value);
+      cb.indeterminate = false;
+    });
+    updateFilterBtnState(btn, subcats, groupCb);
+  });
+}
+
+function selectAllFilters() {
+  Object.values(FILTER_GROUPS).flat().forEach(s => activeSubcategories.add(s));
+  syncGroupCheckboxes();
+  updateAllBtnState(document.getElementById("filter-all-btn"));
+  updateAllPanelCheckboxes();
+  applyFilters();
+}
+
+function selectOnlyGroup(groupName) {
+  activeSubcategories.clear();
+  FILTER_GROUPS[groupName].forEach(s => activeSubcategories.add(s));
+  syncGroupCheckboxes();
+  updateAllBtnState(document.getElementById("filter-all-btn"));
+  updateAllPanelCheckboxes();
+  applyFilters();
+}
+
+function updateAllPanelCheckboxes() {
+  document.querySelectorAll(".filter-all-row[data-group]").forEach(row => {
+    const subcats = FILTER_GROUPS[row.dataset.group];
+    if (!subcats) return;
+    const cb = row.querySelector(".filter-all-row__cb");
+    if (!cb) return;
+    const checkedCount = subcats.filter(s => activeSubcategories.has(s)).length;
+    cb.checked = checkedCount === subcats.length;
+    cb.indeterminate = checkedCount > 0 && checkedCount < subcats.length;
+  });
+}
+
+function renderSortBar() {
+  const bar = document.getElementById("sort-bar");
+  bar.innerHTML = "";
+
+  const label = document.createElement("span");
+  label.className = "sort-bar__label";
+  label.innerHTML = "Sort &amp;<br>Filter";
+  bar.appendChild(label);
+
+  const btnAsc = document.createElement("button");
+  btnAsc.className = "sort-btn";
+  btnAsc.dataset.sort = "price-asc";
+  btnAsc.innerHTML = "Price &#8593;";
+  btnAsc.addEventListener("click", () => toggleSort("price-asc", btnAsc));
+  bar.appendChild(btnAsc);
+
+  const btnDesc = document.createElement("button");
+  btnDesc.className = "sort-btn";
+  btnDesc.dataset.sort = "price-desc";
+  btnDesc.innerHTML = "Price &#8595;";
+  btnDesc.addEventListener("click", () => toggleSort("price-desc", btnDesc));
+  bar.appendChild(btnDesc);
+
+  const btnUnder50 = document.createElement("button");
+  btnUnder50.className = "sort-btn";
+  btnUnder50.id = "btn-under50";
+  btnUnder50.textContent = "Gifts Under $50";
+  btnUnder50.addEventListener("click", () => {
+    const isActive = btnUnder50.classList.contains("sort-btn--active");
+    if (isActive) {
+      selectAllFilters();
+      btnUnder50.classList.remove("sort-btn--active");
+    } else {
+      activeSubcategories.clear();
+      activeSubcategories.add("Gifts: Under $50");
+      syncGroupCheckboxes();
+      updateAllBtnState(document.getElementById("filter-all-btn"));
+      applyFilters();
+      btnUnder50.classList.add("sort-btn--active");
+    }
+  });
+  bar.appendChild(btnUnder50);
+
+  const btnDeals = document.createElement("button");
+  btnDeals.className = "sort-btn sort-btn--deals";
+  btnDeals.id = "btn-deals";
+  btnDeals.textContent = "🔥 Special Deals";
+  btnDeals.addEventListener("click", () => {
+    state.dealsOnly = !state.dealsOnly;
+    btnDeals.classList.toggle("sort-btn--active", state.dealsOnly);
+    applyFilters();
+  });
+  bar.appendChild(btnDeals);
+}
+
+function toggleSort(key, btn) {
+  if (state.sort === key) {
+    state.sort = null;
+    btn.classList.remove("sort-btn--active");
+  } else {
+    state.sort = key;
+    document.querySelectorAll(".sort-btn[data-sort]").forEach(b => b.classList.remove("sort-btn--active"));
+    btn.classList.add("sort-btn--active");
+  }
+  applyFilters();
+}
+
+function applyFilters() {
+  let data = state.allData;
+  // Filter by active subcategories — show item if its category is checked
+  data = data.filter(d => activeSubcategories.has(d.Category));
+  if (state.dealsOnly) data = data.filter(d => d.OriginalPrice && d.OriginalPrice.trim());
+  if (state.sort === "price-asc")  data = [...data].sort((a, b) => parsePrice(a.Price) - parsePrice(b.Price));
+  if (state.sort === "price-desc") data = [...data].sort((a, b) => parsePrice(b.Price) - parsePrice(a.Price));
+  renderGrid(data);
+}
+
+function parsePrice(str) {
+  return parseFloat((str || "0").replace(/[^0-9.]/g, "")) || 0;
+}
+
+// ── Load-more state ───────────────────────────────────────────
+const BATCH_SIZE = 12;
+let pendingItems = [];
+
+function renderGrid(data) {
+  const grid = document.getElementById("product-grid");
+  grid.style.opacity = "0";
+  grid.style.transform = "translateY(8px)";
+
+  setTimeout(() => {
+    grid.innerHTML = "";
+    pendingItems = [...data];
+
+    if (!data.length) {
+      grid.innerHTML = `<div class="empty-state"><p>No products match these filters.</p></div>`;
+    } else {
+      renderBatch(grid);
+    }
+
+    requestAnimationFrame(() => {
+      grid.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+      grid.style.opacity = "1";
+      grid.style.transform = "translateY(0)";
+    });
+  }, 140);
+}
+
+function renderBatch(grid) {
+  // Remove existing Load More button before appending new cards
+  grid.querySelector(".load-more-wrap")?.remove();
+
+  const batch = pendingItems.splice(0, BATCH_SIZE);
+  const frag  = document.createDocumentFragment();
+  batch.forEach(item => frag.appendChild(buildCard(item)));
+
+  if (pendingItems.length > 0) {
+    const wrap = document.createElement("div");
+    wrap.className = "load-more-wrap";
+
+    const btn = document.createElement("button");
+    btn.className = "load-more-btn";
+    btn.textContent = "Load More";
+    btn.addEventListener("click", () => renderBatch(grid));
+
+    const count = document.createElement("span");
+    count.className = "load-more-count";
+    count.textContent = `Showing ${grid.querySelectorAll(".product-card").length + batch.length} of ${grid.querySelectorAll(".product-card").length + batch.length + pendingItems.length}`;
+
+    wrap.appendChild(btn);
+    wrap.appendChild(count);
+    frag.appendChild(wrap);
+  }
+
+  grid.appendChild(frag);
+}
+
+// ── Card builder ──────────────────────────────────────────────
+function buildCard(item) {
+  const card = document.createElement("article");
+  card.className = "product-card";
+
+  // Image
+  const imgWrap = document.createElement("div");
+  imgWrap.className = "product-card__image-wrap";
+  const img = document.createElement("img");
+  img.className = "product-card__image";
+  img.src = item.ImageURL || "https://placehold.co/600x400/1c1c1c/555?text=No+Image";
+  img.alt = item.Title || "Product";
+  img.loading = "lazy";
+  img.onerror = function () { this.src = "https://placehold.co/600x400/1c1c1c/555?text=Image+Error"; };
+  imgWrap.appendChild(img);
+
+  // Body
+  const body = document.createElement("div");
+  body.className = "product-card__body";
+
+  if (item.Category) body.appendChild(el("span", "product-card__category", item.Category));
+  body.appendChild(el("h2", "product-card__title", item.Title || "Untitled"));
+
+  // Price row
+  if (item.Price) {
+    const priceRow = document.createElement("div");
+    priceRow.className = "product-card__price-row";
+    priceRow.appendChild(el("div", "product-card__price", item.Price));
+    if (item.OriginalPrice && item.OriginalPrice.trim()) {
+      priceRow.appendChild(el("div", "product-card__price-original", item.OriginalPrice));
+      const pct = calcDiscount(item.OriginalPrice, item.Price);
+      if (pct) body.appendChild(el("div", "product-card__discount", `-${pct}%`));
+    }
+    body.appendChild(priceRow);
+  }
+
+  if (item.Description) body.appendChild(el("p", "product-card__desc", item.Description));
+
+  const btnGroup = document.createElement("div");
+  btnGroup.className = "product-card__btns";
+  if (item.Button1Text && item.Button1Link) btnGroup.appendChild(buildBtn(item.Button1Text, item.Button1Link, "primary", item.Price));
+  if (item.Button2Text && item.Button2Link) btnGroup.appendChild(buildBtn(item.Button2Text, item.Button2Link, "secondary", item.OriginalPrice || item.Price));
+  body.appendChild(btnGroup);
+
+  card.appendChild(imgWrap);
+  card.appendChild(body);
+  return card;
+}
+
+function buildBtn(text, href, variant, price) {
+  const a = document.createElement("a");
+  a.className = `product-card__btn product-card__btn--${variant}`;
+  a.href = href;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.textContent = price ? `${text} — ${price}` : text;
+  return a;
+}
+
+function calcDiscount(original, current) {
+  const o = parseFloat(original.replace(/[^0-9.]/g, ""));
+  const c = parseFloat(current.replace(/[^0-9.]/g, ""));
+  if (!o || !c || c >= o) return null;
+  return Math.round((1 - c / o) * 100);
+}
+
+function el(tag, className, text) {
+  const e = document.createElement(tag);
+  e.className = className;
+  e.textContent = text;
+  return e;
+}
+
+function hideLoading() {
+  const el = document.getElementById("loading-state");
+  if (el) el.style.display = "none";
+}
+function showError(msg) {
+  const el = document.getElementById("loading-state");
+  if (el) { el.innerHTML = `<p style="color:var(--text-muted);font-size:15px;text-align:center;">${msg}</p>`; el.style.display = "flex"; }
+}
+
+
+// ── Modal ─────────────────────────────────────────────────────
+
+function openModal() {
+  document.getElementById("modal-auth").style.display = "";
+  document.getElementById("modal-code-screen").style.display = "none";
+  document.getElementById("modal-email").value = "";
+  document.getElementById("modal-email-wrap").classList.remove("modal__email-wrap--error");
+  document.getElementById("modal-overlay").classList.add("modal-overlay--open");
+  document.getElementById("modal-email").focus();
+}
+
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("modal-overlay--open");
+}
+
+function showCode() {
+  document.getElementById("modal-auth").style.display = "none";
+  document.getElementById("modal-code-screen").style.display = "";
+}
+
+function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+function initModal() {
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-overlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+  document.getElementById("btn-google").addEventListener("click", showCode);
+  document.getElementById("btn-openpass").addEventListener("click", showCode);
+
+  document.getElementById("btn-email-continue").addEventListener("click", () => {
+    const email = document.getElementById("modal-email").value.trim();
+    if (!isValidEmail(email)) {
+      const wrap = document.getElementById("modal-email-wrap");
+      wrap.classList.add("modal__email-wrap--error");
+      document.getElementById("modal-email").focus();
+      document.getElementById("modal-email").addEventListener("input", () => wrap.classList.remove("modal__email-wrap--error"), { once: true });
+      return;
+    }
+    showCode();
+  });
+
+  document.getElementById("modal-code").addEventListener("click", () => {
+    const code = document.getElementById("modal-code").textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      const el = document.getElementById("modal-code");
+      const original = el.textContent;
+      el.textContent = "Copied!";
+      setTimeout(() => { el.textContent = original; }, 1800);
+    }).catch(() => {});
+  });
+}
+</script>
+
+<!-- ── TheGamer Footer (from static page source) ── -->
+<footer id="website-footer" aria-label="Footer">
+  <div class="wrapper w-footer">
+    <div class="footer-content">
+      <div class="footer-content-el">
+        <div class="el-header">
+          <a href="https://www.thegamer.com/" class="footer-img" rel="home" target="_blank">
+            <picture>
+              <source srcset="https://static0.thegamerimages.com/assets/images/tg-logo-symbol-white.svg?v=2.4" media="(prefers-color-scheme: dark)">
+              <img src="https://static0.thegamerimages.com/assets/images/tg-logo-symbol-white.svg?v=2.4" alt="TheGamer logo" title="TheGamer" width="60" height="60" loading="lazy">
+            </picture>
+          </a>
+        </div>
+        <ul>
+          <li><a class="text" href="https://www.thegamer.com/work-with-us/" target="_blank">Join Our Team</a></li>
+          <li><a class="text" href="https://www.thegamer.com/page/advertise/" target="_blank">Our Audience</a></li>
+          <li><a class="text" href="https://www.thegamer.com/page/about/" target="_blank">About Us</a></li>
+          <li><a class="text" href="https://www.thegamer.com/page/press-events/" target="_blank">Press &amp; Events</a></li>
+          <li><a class="text" href="https://www.thegamer.com/contact/" target="_blank">Contact Us</a></li>
+        </ul>
+        <ul class="social-media">
+          <li class="text highlight large" style="white-space:nowrap;">Follow Us</li>
+          <li class="social-elements"><a class="text icon i-youtube" href="https://www.youtube.com/channel/UCX77Km4pLRsU9OFYEMdIvew" target="_blank"></a></li>
+          <li class="social-elements"><a class="text icon i-facebook" href="https://www.facebook.com/thegamercom/" target="_blank"></a></li>
+          <li class="social-elements"><a class="text icon i-instagram" href="https://www.instagram.com/thegamerweb/" target="_blank"></a></li>
+          <li class="social-elements"><a class="text icon i-twitter" href="https://twitter.com/thegamerwebsite" target="_blank"></a></li>
+          <li class="social-elements"><a class="text icon i-tiktok" href="https://www.tiktok.com/@thegamerwebsite" target="_blank"></a></li>
+          <li class="social-elements"><a class="text icon i-linkedin" href="https://ca.linkedin.com/company/thegamer" target="_blank"></a></li>
+        </ul>
+      </div>
+      <div class="footer-content-el"></div>
+      <div class="footer-content-el section-right">
+        <div class="el-header section-right">
+          <a class="footer-img" href="https://www.valnetinc.com/en/" target="_blank">
+            <img src="https://static0.thegamerimages.com/assets/images/valnet-logo-icon-white.svg?v=2.4" class="logo-img valnet" alt="Valnet Logo" title="Valnet" loading="lazy" height="37" width="32">
+          </a>
+        </div>
+        <ul class="align-right">
+          <li><a class="text" href="https://www.valnetinc.com/en/advertising" target="_blank">Advertising</a></li>
+          <li><a class="text" href="https://www.valnetinc.com/en/careers" target="_blank">Careers</a></li>
+          <li><a class="text" href="https://www.valnetinc.com/en/terms-of-use" target="_blank">Terms</a></li>
+          <li><a class="text" href="https://www.valnetinc.com/en/privacy-policy" target="_blank">Privacy</a></li>
+          <li><a class="text" href="https://www.valnetinc.com/en/editorial-integrity" target="_blank">Policies</a></li>
+        </ul>
+        <div class="footer-content-el footer-note section-right">
+          <div class="text"><a href="https://www.thegamer.com/" class="link brand" target="_blank">TheGamer</a> is part of the <a href="https://www.valnetinc.com/en/" class="link" target="_blank">Valnet Publishing Group</a></div>
+        </div>
+      </div>
+      <div class="footer-content-el"></div>
+    </div>
+  </div>
+  <div class="wrapper">
+    <div class="valnet-content">
+      <div class="text">Copyright &copy; 2026 Valnet Inc.</div>
+    </div>
+  </div>
+</footer>
+<!-- ── /TheGamer Footer ── -->
+
+</body>
+</html>
