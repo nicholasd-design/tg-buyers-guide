@@ -638,12 +638,24 @@
       background: var(--orange) !important;
       border-color: var(--orange-dark) !important;
     }
+    .product-card.is-expanded .product-card__image-wrap {
+      display: none !important;
+    }
+    .product-card.is-expanded .product-card__body {
+      overflow: hidden !important;
+      flex: 1 !important;
+    }
     .product-card.is-expanded .product-card__desc {
       display: block !important;
-      overflow: visible !important;
+      overflow-y: auto !important;
       -webkit-line-clamp: unset !important;
       line-clamp: unset !important;
+      flex: 1 !important;
+      min-height: 0 !important;
     }
+    .product-card.is-expanded .product-card__desc::-webkit-scrollbar { width: 4px; }
+    .product-card.is-expanded .product-card__desc::-webkit-scrollbar-track { background: transparent; }
+    .product-card.is-expanded .product-card__desc::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.3); border-radius: 2px; }
     .product-card.is-expanded .product-card__category { color: rgba(0,0,0,0.6) !important; }
     .product-card.is-expanded .product-card__title { color: #000 !important; }
     .product-card.is-expanded .product-card__price { color: #000 !important; }
@@ -1883,6 +1895,12 @@ function buildCard(item) {
     expandBtn.setAttribute("aria-label", "Expand description");
     expandBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4.5L7 9.5L12 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     expandBtn.addEventListener("click", () => {
+      const expanding = !card.classList.contains("is-expanded");
+      if (expanding) {
+        card.style.height = card.offsetHeight + "px";
+      } else {
+        card.style.height = "";
+      }
       card.classList.toggle("is-expanded");
     });
     body.appendChild(expandBtn);
