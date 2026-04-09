@@ -513,12 +513,7 @@
       display: flex;
       flex-direction: column;
       box-shadow: var(--card-shadow);
-      transition: border-top-left-radius 0.12s ease, box-shadow 0.12s ease, background 0.25s ease;
       position: relative;
-    }
-    .product-card:hover {
-      border-top-left-radius: 0 !important;
-      box-shadow: -5px -5px 0 0 var(--orange), var(--card-shadow) !important;
     }
 
     /* Image */
@@ -537,12 +532,6 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: transform 0.5s var(--ease), filter 0.3s ease;
-      filter: brightness(0.9);
-    }
-    .product-card:hover .product-card__image {
-      transform: scale(1.05);
-      filter: brightness(1);
     }
 
     /* Body */
