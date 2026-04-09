@@ -520,14 +520,13 @@
       content: '';
       position: absolute;
       top: 0;
-      left: 0;
+      left: -20px;
       height: 100%;
-      width: 16px;
+      width: 18px;
       background: var(--orange-dark);
       transform: skew(-6deg);
-      transform-origin: bottom left;
-      margin-left: -36px;
-      transition: margin-left 0.25s ease-out;
+      transform-origin: top left;
+      transition: left 0.25s ease-out;
       z-index: 3;
       pointer-events: none;
     }
@@ -535,7 +534,7 @@
       border-color: var(--orange-dark) !important;
     }
     .product-card:hover::before {
-      margin-left: -12px;
+      left: 0;
     }
 
 
