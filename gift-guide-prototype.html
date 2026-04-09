@@ -607,19 +607,100 @@
       white-space: nowrap;
     }
 
-    /* Description */
+    /* Description (card — clamped, opens lightbox on click) */
     .product-card__desc {
       font-size: 14px !important;
       color: var(--text-muted) !important;
       line-height: 1.6 !important;
-      height: calc(3 * 1.6em) !important;
-      overflow-y: scroll;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      cursor: pointer !important;
     }
-    .product-card__desc::-webkit-scrollbar { display: none; }
     .product-card__desc p { margin: 0 !important; }
-    .product-card__desc p + p { margin-top: 1em !important; }
+
+    /* ── Description lightbox ─────────────────────────────────── */
+    .desc-lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .desc-lightbox-overlay--open {
+      opacity: 1 !important;
+      pointer-events: all !important;
+    }
+    .desc-lightbox {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transform: translateY(14px);
+      transition: transform 0.22s ease;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+    }
+    .desc-lightbox-overlay--open .desc-lightbox {
+      transform: translateY(0) !important;
+    }
+    .desc-lightbox__close {
+      position: absolute !important;
+      top: 13px !important;
+      right: 15px !important;
+      background: none !important;
+      border: none !important;
+      color: var(--text-dim) !important;
+      font-size: 18px !important;
+      cursor: pointer !important;
+      line-height: 1 !important;
+      padding: 4px 6px !important;
+      transition: color 0.15s ease;
+      z-index: 1;
+    }
+    .desc-lightbox__close:hover { color: var(--text-heading) !important; }
+    .desc-lightbox__header {
+      padding: 20px 48px 16px 20px !important;
+      border-bottom: 1px solid var(--border) !important;
+      flex-shrink: 0 !important;
+    }
+    .desc-lightbox__title {
+      font-family: var(--font-head) !important;
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      color: var(--text-heading) !important;
+      line-height: 1.2 !important;
+    }
+    .desc-lightbox__body {
+      padding: 18px 20px !important;
+      overflow-y: auto !important;
+      flex: 1 !important;
+      font-size: 14px !important;
+      color: var(--text-muted) !important;
+      line-height: 1.7 !important;
+    }
+    .desc-lightbox__body p { margin: 0 !important; }
+    .desc-lightbox__body p + p { margin-top: 1em !important; }
+    .desc-lightbox__footer {
+      padding: 14px 20px 18px !important;
+      border-top: 1px solid var(--border) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+      flex-shrink: 0 !important;
+    }
 
 
     /* CTA buttons — outside the flipper, always visible */
@@ -1389,6 +1470,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.glowState = { el: glowEl, setCard: (c) => { activeGlowCard = c; }, clearCard: () => { activeGlowCard = null; } };
 
   initControls();
+  initDescLightbox();
   document.getElementById("btn-follow-page").addEventListener("click", function() {
     this.classList.toggle("active");
   });
@@ -1846,6 +1928,69 @@ function renderBatch(grid) {
 }
 
 
+// ── Description lightbox ─────────────────────────────────────
+let _descLightbox = null;
+
+function initDescLightbox() {
+  const overlay = document.createElement("div");
+  overlay.className = "desc-lightbox-overlay";
+
+  const box = document.createElement("div");
+  box.className = "desc-lightbox";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "desc-lightbox__close";
+  closeBtn.innerHTML = "&#x2715;";
+  closeBtn.setAttribute("aria-label", "Close");
+  closeBtn.addEventListener("click", closeDescLightbox);
+
+  const header = document.createElement("div");
+  header.className = "desc-lightbox__header";
+  const titleEl = document.createElement("h3");
+  titleEl.className = "desc-lightbox__title";
+  header.appendChild(titleEl);
+
+  const body = document.createElement("div");
+  body.className = "desc-lightbox__body";
+
+  const footer = document.createElement("div");
+  footer.className = "desc-lightbox__footer";
+
+  box.appendChild(closeBtn);
+  box.appendChild(header);
+  box.appendChild(body);
+  box.appendChild(footer);
+  overlay.appendChild(box);
+  document.getElementById("gift-guide-widget").appendChild(overlay);
+
+  overlay.addEventListener("click", e => { if (e.target === overlay) closeDescLightbox(); });
+
+  _descLightbox = { overlay, titleEl, body, footer };
+}
+
+function openDescLightbox(item) {
+  const { overlay, titleEl, body, footer } = _descLightbox;
+  titleEl.textContent = item.Title || "";
+  body.innerHTML = "";
+  (item.Description || "").split("\n").map(p => p.trim()).filter(Boolean).forEach(para => {
+    const p = document.createElement("p");
+    p.textContent = para;
+    body.appendChild(p);
+  });
+  footer.innerHTML = "";
+  if (item.Button1Text && item.Button1Link) footer.appendChild(buildBtn(item.Button1Text, item.Button1Link, "primary", item.Price));
+  if (item.Button2Text && item.Button2Link) footer.appendChild(buildBtn(item.Button2Text, item.Button2Link, "secondary", item.OriginalPrice || item.Price));
+  overlay.classList.add("desc-lightbox-overlay--open");
+  document.addEventListener("keydown", _descLightboxEsc);
+}
+
+function closeDescLightbox() {
+  _descLightbox.overlay.classList.remove("desc-lightbox-overlay--open");
+  document.removeEventListener("keydown", _descLightboxEsc);
+}
+
+function _descLightboxEsc(e) { if (e.key === "Escape") closeDescLightbox(); }
+
 // ── Card builder ──────────────────────────────────────────────
 function buildCard(item) {
   const card = document.createElement("article");
@@ -1901,6 +2046,7 @@ function buildCard(item) {
       p.textContent = para;
       desc.appendChild(p);
     });
+    desc.addEventListener("click", () => openDescLightbox(item));
     body.appendChild(desc);
   }
 
