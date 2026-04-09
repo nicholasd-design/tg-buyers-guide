@@ -612,6 +612,63 @@
     }
 
 
+    /* Expand button */
+    .product-card__expand-btn {
+      display: flex !important;
+      justify-content: flex-end !important;
+      align-items: center !important;
+      background: none !important;
+      border: none !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+      margin-top: -2px !important;
+      color: var(--text-dim) !important;
+      width: 100% !important;
+      transition: color 0.15s ease;
+    }
+    .product-card__expand-btn svg {
+      transition: transform 0.25s ease;
+    }
+    .product-card.is-expanded .product-card__expand-btn svg {
+      transform: rotate(180deg);
+    }
+
+    /* Expanded card — orange inversion */
+    .product-card.is-expanded {
+      background: var(--orange) !important;
+      border-color: var(--orange-dark) !important;
+    }
+    .product-card.is-expanded .product-card__desc {
+      display: block !important;
+      overflow: visible !important;
+      -webkit-line-clamp: unset !important;
+      line-clamp: unset !important;
+    }
+    .product-card.is-expanded .product-card__category { color: rgba(0,0,0,0.6) !important; }
+    .product-card.is-expanded .product-card__title { color: #000 !important; }
+    .product-card.is-expanded .product-card__price { color: #000 !important; }
+    .product-card.is-expanded .product-card__price-original { color: rgba(0,0,0,0.5) !important; }
+    .product-card.is-expanded .product-card__discount { color: #000 !important; }
+    .product-card.is-expanded .product-card__desc { color: #000 !important; }
+    .product-card.is-expanded .product-card__expand-btn { color: #000 !important; }
+    .product-card.is-expanded .product-card__btn--primary {
+      background: #000 !important;
+      color: #fff !important;
+      border-color: #000 !important;
+    }
+    .product-card.is-expanded .product-card__btn--secondary {
+      background: transparent !important;
+      color: #000 !important;
+      border-color: rgba(0,0,0,0.4) !important;
+    }
+    .product-card.is-expanded .product-card__btn--primary:hover {
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.3) !important;
+      color: #fff !important;
+    }
+    .product-card.is-expanded .product-card__btn--secondary:hover {
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.3) !important;
+    }
+
     /* CTA buttons */
     .product-card__btns {
       display: flex;
@@ -1818,7 +1875,18 @@ function buildCard(item) {
     body.appendChild(priceRow);
   }
 
-  if (item.Description) body.appendChild(el("p", "product-card__desc", item.Description));
+  if (item.Description) {
+    body.appendChild(el("p", "product-card__desc", item.Description));
+
+    const expandBtn = document.createElement("button");
+    expandBtn.className = "product-card__expand-btn";
+    expandBtn.setAttribute("aria-label", "Expand description");
+    expandBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4.5L7 9.5L12 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    expandBtn.addEventListener("click", () => {
+      card.classList.toggle("is-expanded");
+    });
+    body.appendChild(expandBtn);
+  }
 
   const btnGroup = document.createElement("div");
   btnGroup.className = "product-card__btns";
