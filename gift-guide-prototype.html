@@ -599,34 +599,20 @@
     }
 
     /* Description */
-    .product-card__desc--short {
+    .product-card__desc {
       font-size: 14px;
       color: var(--text-muted);
       line-height: 1.6;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      height: calc(3 * 1.6em);
+      overflow-y: scroll;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
-    .product-card__desc--full {
-      display: none;
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      overflow-y: auto;
-      flex: 1;
-      min-height: 0;
-    }
-    .product-card__desc--full p { margin: 0; }
-    .product-card__desc--full p + p { margin-top: 1em; }
-    .product-card.is-expanded .product-card__desc--short { display: none; }
-    .product-card.is-expanded .product-card__desc--full { display: block; }
-    .product-card.is-expanded .product-card__desc--full::-webkit-scrollbar { width: 4px; }
-    .product-card.is-expanded .product-card__desc--full::-webkit-scrollbar-track { background: transparent; }
-    .product-card.is-expanded .product-card__desc--full::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.3); border-radius: 2px; }
+    .product-card__desc::-webkit-scrollbar { display: none; }
+    .product-card__desc p { margin: 0; }
+    .product-card__desc p + p { margin-top: 1em; }
 
-    /* Expand button */
+    /* Scroll button */
     .product-card__expand-btn {
       display: flex !important;
       justify-content: flex-end !important;
@@ -635,54 +621,13 @@
       border: none !important;
       cursor: pointer !important;
       padding: 0 !important;
-      margin-top: -2px !important;
+      margin-top: 2px !important;
       color: var(--text-dim) !important;
       width: 100% !important;
       transition: color 0.15s ease;
     }
-    .product-card__expand-btn svg {
-      transition: transform 0.25s ease;
-    }
-    .product-card.is-expanded .product-card__expand-btn svg {
-      transform: rotate(180deg);
-    }
-
-    /* Expanded card — orange inversion */
-    .product-card.is-expanded {
-      background: var(--orange) !important;
-      border-color: var(--orange-dark) !important;
-    }
-    .product-card.is-expanded .product-card__image-wrap {
-      display: none !important;
-    }
-    .product-card.is-expanded .product-card__body {
-      overflow: hidden !important;
-      flex: 1 !important;
-    }
-    .product-card.is-expanded .product-card__category { color: rgba(0,0,0,0.6) !important; }
-    .product-card.is-expanded .product-card__title { color: #000 !important; }
-    .product-card.is-expanded .product-card__price { color: #000 !important; }
-    .product-card.is-expanded .product-card__price-original { color: rgba(0,0,0,0.5) !important; }
-    .product-card.is-expanded .product-card__discount { color: #000 !important; }
-    .product-card.is-expanded .product-card__desc { color: #000 !important; }
-    .product-card.is-expanded .product-card__expand-btn { color: #000 !important; }
-    .product-card.is-expanded .product-card__btn--primary {
-      background: #000 !important;
-      color: #fff !important;
-      border-color: #000 !important;
-    }
-    .product-card.is-expanded .product-card__btn--secondary {
-      background: transparent !important;
-      color: #000 !important;
-      border-color: rgba(0,0,0,0.4) !important;
-    }
-    .product-card.is-expanded .product-card__btn--primary:hover {
-      box-shadow: 3px 3px 0 rgba(0,0,0,0.3) !important;
-      color: #fff !important;
-    }
-    .product-card.is-expanded .product-card__btn--secondary:hover {
-      box-shadow: 3px 3px 0 rgba(0,0,0,0.3) !important;
-    }
+    .product-card__expand-btn svg { transition: transform 0.25s ease; }
+    .product-card__expand-btn.is-scrolled svg { transform: rotate(180deg); }
 
     /* CTA buttons */
     .product-card__btns {
@@ -1855,6 +1800,20 @@ function renderBatch(grid) {
   grid.appendChild(frag);
 }
 
+// ── Slow scroll helper ────────────────────────────────────────
+function slowScroll(el, target, duration) {
+  const start = el.scrollTop;
+  const distance = target - start;
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    el.scrollTop = start + distance * ease;
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
 // ── Card builder ──────────────────────────────────────────────
 function buildCard(item) {
   const card = document.createElement("article");
@@ -1893,37 +1852,24 @@ function buildCard(item) {
   if (item.Description) {
     const paras = item.Description.split("\n").map(p => p.trim()).filter(Boolean);
 
-    // Collapsed: single clamped line
-    const descShort = document.createElement("p");
-    descShort.className = "product-card__desc--short";
-    descShort.textContent = paras.join(" ");
-    body.appendChild(descShort);
-
-    // Expanded: all paragraphs, scrollable
-    const descFull = document.createElement("div");
-    descFull.className = "product-card__desc--full";
+    const desc = document.createElement("div");
+    desc.className = "product-card__desc";
     paras.forEach(para => {
       const p = document.createElement("p");
       p.textContent = para;
-      descFull.appendChild(p);
+      desc.appendChild(p);
     });
-    body.appendChild(descFull);
+    body.appendChild(desc);
 
     const expandBtn = document.createElement("button");
     expandBtn.className = "product-card__expand-btn";
-    expandBtn.setAttribute("aria-label", "Expand description");
+    expandBtn.setAttribute("aria-label", "Scroll description");
     expandBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4.5L7 9.5L12 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     expandBtn.addEventListener("click", () => {
-      const expanding = !card.classList.contains("is-expanded");
-      // Close any other open card first
-      document.querySelectorAll(".product-card.is-expanded").forEach(other => {
-        other.style.height = "";
-        other.classList.remove("is-expanded");
-      });
-      if (expanding) {
-        card.style.height = card.offsetHeight + "px";
-        card.classList.add("is-expanded");
-      }
+      const atBottom = desc.scrollTop + desc.clientHeight >= desc.scrollHeight - 4;
+      const target = atBottom ? 0 : desc.scrollHeight;
+      expandBtn.classList.toggle("is-scrolled", !atBottom);
+      slowScroll(desc, target, 1800);
     });
     body.appendChild(expandBtn);
   }
