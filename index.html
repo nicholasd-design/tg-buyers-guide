@@ -552,6 +552,7 @@
       gap: 8px;
       flex: 1;
       position: relative;
+      cursor: pointer !important;
     }
     .product-card__category {
       font-family: var(--font-head);
@@ -607,7 +608,7 @@
       white-space: nowrap;
     }
 
-    /* Description (card — clamped, opens lightbox on click) */
+    /* Description (card — clamped, whole card body is clickable) */
     .product-card__desc {
       font-size: 14px !important;
       color: var(--text-muted) !important;
@@ -616,7 +617,6 @@
       -webkit-line-clamp: 3 !important;
       -webkit-box-orient: vertical !important;
       overflow: hidden !important;
-      cursor: pointer !important;
     }
     .product-card__desc p { margin: 0 !important; }
 
@@ -644,7 +644,7 @@
       border-radius: 8px;
       width: 100%;
       max-width: 540px;
-      max-height: 80vh;
+      height: min(560px, 85vh);
       display: flex;
       flex-direction: column;
       position: relative;
@@ -686,6 +686,8 @@
     .desc-lightbox__body {
       padding: 18px 20px !important;
       overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
       flex: 1 !important;
       font-size: 14px !important;
       color: var(--text-muted) !important;
@@ -1961,15 +1963,29 @@ function initDescLightbox() {
   box.appendChild(body);
   box.appendChild(footer);
   overlay.appendChild(box);
-  document.getElementById("gift-guide-widget").appendChild(overlay);
+  document.body.appendChild(overlay);
 
   overlay.addEventListener("click", e => { if (e.target === overlay) closeDescLightbox(); });
 
   _descLightbox = { overlay, titleEl, body, footer };
 }
 
+function syncLightboxVars() {
+  const widget = document.getElementById("gift-guide-widget");
+  const cs = getComputedStyle(widget);
+  const vars = [
+    "--orange", "--orange-dark", "--bg", "--surface", "--surface-hover",
+    "--border", "--border-bright", "--text", "--text-muted", "--text-dim",
+    "--text-heading", "--font-head", "--font-body", "--ease"
+  ];
+  vars.forEach(v => {
+    _descLightbox.overlay.style.setProperty(v, cs.getPropertyValue(v).trim());
+  });
+}
+
 function openDescLightbox(item) {
   const { overlay, titleEl, body, footer } = _descLightbox;
+  syncLightboxVars();
   titleEl.textContent = item.Title || "";
   body.innerHTML = "";
   (item.Description || "").split("\n").map(p => p.trim()).filter(Boolean).forEach(para => {
@@ -1981,11 +1997,13 @@ function openDescLightbox(item) {
   if (item.Button1Text && item.Button1Link) footer.appendChild(buildBtn(item.Button1Text, item.Button1Link, "primary", item.Price));
   if (item.Button2Text && item.Button2Link) footer.appendChild(buildBtn(item.Button2Text, item.Button2Link, "secondary", item.OriginalPrice || item.Price));
   overlay.classList.add("desc-lightbox-overlay--open");
+  document.body.style.overflow = "hidden";
   document.addEventListener("keydown", _descLightboxEsc);
 }
 
 function closeDescLightbox() {
   _descLightbox.overlay.classList.remove("desc-lightbox-overlay--open");
+  document.body.style.overflow = "";
   document.removeEventListener("keydown", _descLightboxEsc);
 }
 
@@ -2046,10 +2064,10 @@ function buildCard(item) {
       p.textContent = para;
       desc.appendChild(p);
     });
-    desc.addEventListener("click", () => openDescLightbox(item));
     body.appendChild(desc);
   }
 
+  body.addEventListener("click", () => openDescLightbox(item));
   card.appendChild(body);
 
   // Buttons — OUTSIDE the flipper so they stay visible when flipped
