@@ -625,7 +625,7 @@
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.82);
-      z-index: 2000;
+      z-index: 10001;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -764,6 +764,16 @@
       color: var(--orange) !important;
       background: transparent !important;
       border-color: var(--border-bright) !important;
+    }
+
+    /* ── Mobile card focus (IntersectionObserver) ─────────────── */
+    @keyframes btn-pulse {
+      0%   { transform: scale(1);    box-shadow: 3px 3px 0 rgba(255,107,15,0); }
+      50%  { transform: scale(1.04); box-shadow: 3px 3px 0 rgba(255,107,15,0.7); }
+      100% { transform: scale(1);    box-shadow: 3px 3px 0 rgba(255,107,15,0); }
+    }
+    .card--mobile-focus .product-card__btn--primary {
+      animation: btn-pulse 1.5s ease-in-out infinite !important;
     }
 
     /* ── Loading / empty ──────────────────────────────────────── */
@@ -1471,6 +1481,16 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("scroll", updateGlowPos, { passive: true });
   window.glowState = { el: glowEl, setCard: (c) => { activeGlowCard = c; }, clearCard: () => { activeGlowCard = null; } };
 
+  // IntersectionObserver for mobile card focus — fires when card enters
+  // the middle ~50% of the viewport (rootMargin trims 25% top and bottom)
+  window.cardFocusObserver = new IntersectionObserver((entries) => {
+    if (!isMobileMode()) return;
+    entries.forEach(entry => {
+      if (entry.isIntersecting) focusMobileCard(entry.target);
+      else unfocusMobileCard(entry.target);
+    });
+  }, { rootMargin: "-25% 0px -25% 0px", threshold: 0 });
+
   initControls();
   initDescLightbox();
   document.getElementById("btn-follow-page").addEventListener("click", function() {
@@ -1883,6 +1903,15 @@ function renderGrid(data) {
   grid.style.transform = "translateY(8px)";
 
   setTimeout(() => {
+    // Clear mobile focus state before wiping the grid
+    if (activeMobileCard) {
+      activeMobileCard.classList.remove("card--mobile-focus");
+      activeMobileCard = null;
+    }
+    if (window.glowState) {
+      window.glowState.clearCard();
+      window.glowState.el.classList.remove("is-active");
+    }
     grid.innerHTML = "";
     pendingItems = [...data];
 
@@ -1906,7 +1935,8 @@ function renderBatch(grid) {
 
   const batch = pendingItems.splice(0, BATCH_SIZE);
   const frag  = document.createDocumentFragment();
-  batch.forEach(item => frag.appendChild(buildCard(item)));
+  const builtCards = batch.map(item => buildCard(item));
+  builtCards.forEach(c => frag.appendChild(c));
 
   if (pendingItems.length > 0) {
     const wrap = document.createElement("div");
@@ -1927,8 +1957,50 @@ function renderBatch(grid) {
   }
 
   grid.appendChild(frag);
+
+  // Observe newly added cards for mobile scroll-focus
+  if (window.cardFocusObserver) {
+    builtCards.forEach(c => window.cardFocusObserver.observe(c));
+  }
 }
 
+
+// ── Mobile card focus ─────────────────────────────────────────
+let activeMobileCard = null;
+
+function isMobileMode() {
+  const widget = document.getElementById("gift-guide-widget");
+  return !window.matchMedia("(hover: hover)").matches
+      || widget.classList.contains("view-mobile");
+}
+
+function focusMobileCard(card) {
+  if (!window.glowState) return;
+  if (activeMobileCard && activeMobileCard !== card) {
+    activeMobileCard.classList.remove("card--mobile-focus");
+  }
+  activeMobileCard = card;
+  card.classList.add("card--mobile-focus");
+  const { el, setCard } = window.glowState;
+  setCard(card);
+  const r = card.getBoundingClientRect();
+  el.style.left   = r.left   + "px";
+  el.style.top    = r.top    + "px";
+  el.style.width  = r.width  + "px";
+  el.style.height = r.height + "px";
+  el.classList.add("is-active");
+}
+
+function unfocusMobileCard(card) {
+  card.classList.remove("card--mobile-focus");
+  if (activeMobileCard === card) {
+    activeMobileCard = null;
+    if (window.glowState) {
+      window.glowState.clearCard();
+      window.glowState.el.classList.remove("is-active");
+    }
+  }
+}
 
 // ── Description lightbox ─────────────────────────────────────
 let _descLightbox = null;
@@ -1984,6 +2056,11 @@ function syncLightboxVars() {
 }
 
 function openDescLightbox(item) {
+  // Hide the card glow border while lightbox is open
+  if (window.glowState) {
+    window.glowState.clearCard();
+    window.glowState.el.classList.remove("is-active");
+  }
   const { overlay, titleEl, body, footer } = _descLightbox;
   syncLightboxVars();
   titleEl.textContent = item.Title || "";
