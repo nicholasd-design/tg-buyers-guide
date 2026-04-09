@@ -514,7 +514,6 @@
       box-shadow: var(--card-shadow);
       position: relative;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      perspective: 1200px;
     }
 
     /* Image */
@@ -550,61 +549,10 @@
       padding: 16px 18px 8px !important;
       display: flex;
       flex-direction: column;
-      gap: 0;
+      gap: 8px;
       flex: 1;
       position: relative;
     }
-
-    /* Flipper — 3D container for front/back */
-    .product-card__flipper {
-      position: relative !important;
-      transform-style: preserve-3d !important;
-      transition: transform 0.52s ease !important;
-      flex: 1 !important;
-    }
-    .product-card.is-flipped .product-card__flipper {
-      transform: rotateY(180deg) !important;
-    }
-    .product-card__front {
-      backface-visibility: hidden !important;
-      -webkit-backface-visibility: hidden !important;
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 8px !important;
-    }
-    .product-card__back {
-      position: absolute !important;
-      inset: 0 !important;
-      transform: rotateY(180deg) !important;
-      backface-visibility: hidden !important;
-      -webkit-backface-visibility: hidden !important;
-      background: var(--surface) !important;
-      display: flex !important;
-      flex-direction: column !important;
-      overflow: hidden !important;
-    }
-    .product-card__back-label {
-      font-family: var(--font-head) !important;
-      font-size: 11px !important;
-      font-weight: 700 !important;
-      letter-spacing: 0.14em !important;
-      text-transform: uppercase !important;
-      color: var(--text-dim) !important;
-      margin-bottom: 6px !important;
-      flex-shrink: 0 !important;
-    }
-    .product-card__back-desc {
-      flex: 1 !important;
-      overflow-y: auto !important;
-      font-size: 14px !important;
-      color: var(--text-muted) !important;
-      line-height: 1.6 !important;
-      cursor: pointer !important;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border-bright) transparent;
-    }
-    .product-card__back-desc p { margin: 0 !important; }
-    .product-card__back-desc p + p { margin-top: 1em !important; }
     .product-card__category {
       font-family: var(--font-head);
       font-size: 12px;
@@ -659,34 +607,19 @@
       white-space: nowrap;
     }
 
-    /* Description (front — clamped) */
-    .product-card__desc-wrap {
-      cursor: pointer !important;
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 0 !important;
-    }
+    /* Description */
     .product-card__desc {
       font-size: 14px !important;
       color: var(--text-muted) !important;
       line-height: 1.6 !important;
-      display: -webkit-box !important;
-      -webkit-line-clamp: 3 !important;
-      -webkit-box-orient: vertical !important;
-      overflow: hidden !important;
+      height: calc(3 * 1.6em) !important;
+      overflow-y: scroll;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    .product-card__desc::-webkit-scrollbar { display: none; }
     .product-card__desc p { margin: 0 !important; }
-    .product-card__read-more {
-      font-size: 13px !important;
-      color: var(--orange) !important;
-      cursor: pointer !important;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      margin-top: 3px !important;
-      display: inline-block !important;
-      font-family: var(--font-body) !important;
-      font-weight: 500 !important;
-    }
+    .product-card__desc p + p { margin-top: 1em !important; }
 
 
     /* CTA buttons — outside the flipper, always visible */
@@ -700,7 +633,7 @@
     }
     /* Spacer so single-button cards align btn1 with 2-button cards */
     .product-card__btn-spacer {
-      height: 58px !important; /* ≈ btn height (50px) + gap (8px) */
+      height: 50px !important; /* = btn height; flex gap (8px) is added automatically */
       flex-shrink: 0 !important;
     }
     .product-card__btn {
@@ -1840,18 +1773,11 @@ function buildCard(item) {
     card.appendChild(imgWrap);
   }
 
-  // Body — contains the flipper (front + back)
+  // Body
   const body = document.createElement("div");
   body.className = "product-card__body";
 
-  const flipper = document.createElement("div");
-  flipper.className = "product-card__flipper";
-
-  // FRONT
-  const front = document.createElement("div");
-  front.className = "product-card__front";
-
-  front.appendChild(el("h2", "product-card__title", item.Title || "Untitled"));
+  body.appendChild(el("h2", "product-card__title", item.Title || "Untitled"));
 
   if (item.Price) {
     const priceRow = document.createElement("div");
@@ -1862,15 +1788,11 @@ function buildCard(item) {
       const pct = calcDiscount(item.OriginalPrice, item.Price);
       if (pct) priceRow.appendChild(el("span", "product-card__discount", `-${pct}%`));
     }
-    front.appendChild(priceRow);
+    body.appendChild(priceRow);
   }
 
   if (item.Description) {
     const paras = item.Description.split("\n").map(p => p.trim()).filter(Boolean);
-
-    const descWrap = document.createElement("div");
-    descWrap.className = "product-card__desc-wrap";
-
     const desc = document.createElement("div");
     desc.className = "product-card__desc";
     paras.forEach(para => {
@@ -1878,44 +1800,9 @@ function buildCard(item) {
       p.textContent = para;
       desc.appendChild(p);
     });
-
-    const readMore = document.createElement("span");
-    readMore.className = "product-card__read-more";
-    readMore.textContent = "Read more";
-
-    descWrap.appendChild(desc);
-    descWrap.appendChild(readMore);
-    descWrap.addEventListener("click", () => card.classList.add("is-flipped"));
-    front.appendChild(descWrap);
+    body.appendChild(desc);
   }
 
-  // BACK — full scrollable description
-  const back = document.createElement("div");
-  back.className = "product-card__back";
-
-  if (item.Description) {
-    const paras = item.Description.split("\n").map(p => p.trim()).filter(Boolean);
-
-    const backLabel = document.createElement("div");
-    backLabel.className = "product-card__back-label";
-    backLabel.textContent = "Description";
-
-    const backDesc = document.createElement("div");
-    backDesc.className = "product-card__back-desc";
-    paras.forEach(para => {
-      const p = document.createElement("p");
-      p.textContent = para;
-      backDesc.appendChild(p);
-    });
-    backDesc.addEventListener("click", () => card.classList.remove("is-flipped"));
-
-    back.appendChild(backLabel);
-    back.appendChild(backDesc);
-  }
-
-  flipper.appendChild(front);
-  flipper.appendChild(back);
-  body.appendChild(flipper);
   card.appendChild(body);
 
   // Buttons — OUTSIDE the flipper so they stay visible when flipped
