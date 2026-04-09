@@ -504,15 +504,7 @@
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
-    /* ── Animated border @property ───────────────────────────── */
-    @property --border-angle {
-      syntax: '<angle>';
-      initial-value: 0deg;
-      inherits: false;
-    }
-    @keyframes border-spin {
-      to { --border-angle: 360deg; }
-    }
+    /* ── Diamond corner brackets on hover ────────────────────── */
 
     /* ── Card ─────────────────────────────────────────────────── */
     .product-card {
@@ -526,25 +518,28 @@
       transition: background 0.25s ease;
       position: relative;
     }
-    .product-card::before {
-      content: '';
+    .card-corners {
       position: absolute;
-      inset: -2px;
-      border-radius: 6px;
-      background: conic-gradient(from var(--border-angle), var(--orange) 0deg 270deg, transparent 270deg 360deg);
-      -webkit-mask:
-        linear-gradient(#fff 0 0) 2px 2px / calc(100% - 4px) calc(100% - 4px) no-repeat,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: destination-out;
-      mask-composite: exclude;
-      opacity: 0;
+      inset: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 2;
+      z-index: 3;
     }
-    .product-card:hover::before {
+    .card-corner {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--orange);
+      transform: rotate(45deg) scale(0.6);
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .card-corner--tl { top: -5px;    left: -5px;  }
+    .card-corner--tr { top: -5px;    right: -5px; }
+    .card-corner--bl { bottom: -5px; left: -5px;  }
+    .card-corner--br { bottom: -5px; right: -5px; }
+    .product-card:hover .card-corner {
       opacity: 1;
-      animation: border-spin 8s linear infinite;
+      transform: rotate(45deg) scale(1);
     }
 
     /* Image */
@@ -1862,8 +1857,17 @@ function buildCard(item) {
   if (item.Button2Text && item.Button2Link) btnGroup.appendChild(buildBtn(item.Button2Text, item.Button2Link, "secondary", item.OriginalPrice || item.Price));
   body.appendChild(btnGroup);
 
+  const corners = document.createElement('div');
+  corners.className = 'card-corners';
+  ['tl','tr','bl','br'].forEach(pos => {
+    const s = document.createElement('span');
+    s.className = `card-corner card-corner--${pos}`;
+    corners.appendChild(s);
+  });
+
   card.appendChild(imgWrap);
   card.appendChild(body);
+  card.appendChild(corners);
   return card;
 }
 
