@@ -504,8 +504,6 @@
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
-    /* ── Diamond corner brackets on hover ────────────────────── */
-
     /* ── Card ─────────────────────────────────────────────────── */
     .product-card {
       background: var(--surface);
@@ -515,31 +513,24 @@
       display: flex;
       flex-direction: column;
       box-shadow: var(--card-shadow);
-      transition: background 0.25s ease;
+      transition: border-top-left-radius 0.12s ease, background 0.25s ease;
       position: relative;
+      z-index: 0;
     }
-    .card-corners {
+    .product-card::before {
+      content: '';
       position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 3;
-    }
-    .card-corner {
-      position: absolute;
-      width: 10px;
-      height: 10px;
+      top: -4px;
+      left: -4px;
+      right: 0;
+      bottom: 0;
       background: var(--orange);
-      transform: rotate(45deg) scale(0.6);
-      opacity: 0;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      border-radius: 4px;
+      z-index: -1;
+      pointer-events: none;
     }
-    .card-corner--tl { top: -5px;    left: -5px;  }
-    .card-corner--tr { top: -5px;    right: -5px; }
-    .card-corner--bl { bottom: -5px; left: -5px;  }
-    .card-corner--br { bottom: -5px; right: -5px; }
-    .product-card:hover .card-corner {
-      opacity: 1;
-      transform: rotate(45deg) scale(1);
+    .product-card:hover {
+      border-top-left-radius: 0 !important;
     }
 
     /* Image */
@@ -1857,17 +1848,8 @@ function buildCard(item) {
   if (item.Button2Text && item.Button2Link) btnGroup.appendChild(buildBtn(item.Button2Text, item.Button2Link, "secondary", item.OriginalPrice || item.Price));
   body.appendChild(btnGroup);
 
-  const corners = document.createElement('div');
-  corners.className = 'card-corners';
-  ['tl','tr','bl','br'].forEach(pos => {
-    const s = document.createElement('span');
-    s.className = `card-corner card-corner--${pos}`;
-    corners.appendChild(s);
-  });
-
   card.appendChild(imgWrap);
   card.appendChild(body);
-  card.appendChild(corners);
   return card;
 }
 
