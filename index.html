@@ -505,20 +505,6 @@
     }
 
     /* ── Card ─────────────────────────────────────────────────── */
-    .card-wrap {
-      position: relative;
-    }
-    .card-wrap::before {
-      content: '';
-      position: absolute;
-      top: -4px;
-      left: -4px;
-      right: 0;
-      bottom: 0;
-      background: var(--orange);
-      border-radius: 4px;
-      pointer-events: none;
-    }
     .product-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -527,12 +513,12 @@
       display: flex;
       flex-direction: column;
       box-shadow: var(--card-shadow);
-      transition: border-top-left-radius 0.12s ease, background 0.25s ease;
+      transition: border-top-left-radius 0.12s ease, box-shadow 0.12s ease, background 0.25s ease;
       position: relative;
-      z-index: 1;
     }
-    .card-wrap:hover .product-card {
+    .product-card:hover {
       border-top-left-radius: 0 !important;
+      box-shadow: -5px -5px 0 0 var(--orange), var(--card-shadow) !important;
     }
 
     /* Image */
@@ -1852,11 +1838,7 @@ function buildCard(item) {
 
   card.appendChild(imgWrap);
   card.appendChild(body);
-
-  const wrap = document.createElement('div');
-  wrap.className = 'card-wrap';
-  wrap.appendChild(card);
-  return wrap;
+  return card;
 }
 
 function buildBtn(text, href, variant, price) {
