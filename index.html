@@ -599,7 +599,7 @@
     }
 
     /* Description */
-    .product-card__desc {
+    .product-card__desc--short {
       font-size: 14px;
       color: var(--text-muted);
       line-height: 1.6;
@@ -608,12 +608,23 @@
       line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      flex: 1;
     }
-
-
-    .product-card__desc p { margin: 0; }
-    .product-card__desc p + p { margin-top: 0.75em; }
+    .product-card__desc--full {
+      display: none;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+    .product-card__desc--full p { margin: 0; }
+    .product-card__desc--full p + p { margin-top: 1em; }
+    .product-card.is-expanded .product-card__desc--short { display: none; }
+    .product-card.is-expanded .product-card__desc--full { display: block; }
+    .product-card.is-expanded .product-card__desc--full::-webkit-scrollbar { width: 4px; }
+    .product-card.is-expanded .product-card__desc--full::-webkit-scrollbar-track { background: transparent; }
+    .product-card.is-expanded .product-card__desc--full::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.3); border-radius: 2px; }
 
     /* Expand button */
     .product-card__expand-btn {
@@ -648,17 +659,6 @@
       overflow: hidden !important;
       flex: 1 !important;
     }
-    .product-card.is-expanded .product-card__desc {
-      display: block !important;
-      overflow-y: auto !important;
-      -webkit-line-clamp: unset !important;
-      line-clamp: unset !important;
-      flex: 1 !important;
-      min-height: 0 !important;
-    }
-    .product-card.is-expanded .product-card__desc::-webkit-scrollbar { width: 4px; }
-    .product-card.is-expanded .product-card__desc::-webkit-scrollbar-track { background: transparent; }
-    .product-card.is-expanded .product-card__desc::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.3); border-radius: 2px; }
     .product-card.is-expanded .product-card__category { color: rgba(0,0,0,0.6) !important; }
     .product-card.is-expanded .product-card__title { color: #000 !important; }
     .product-card.is-expanded .product-card__price { color: #000 !important; }
@@ -1891,16 +1891,23 @@ function buildCard(item) {
   }
 
   if (item.Description) {
-    const descWrap = document.createElement("div");
-    descWrap.className = "product-card__desc";
-    item.Description.split("\n").forEach(para => {
-      if (para.trim()) {
-        const p = document.createElement("p");
-        p.textContent = para.trim();
-        descWrap.appendChild(p);
-      }
+    const paras = item.Description.split("\n").map(p => p.trim()).filter(Boolean);
+
+    // Collapsed: single clamped line
+    const descShort = document.createElement("p");
+    descShort.className = "product-card__desc--short";
+    descShort.textContent = paras.join(" ");
+    body.appendChild(descShort);
+
+    // Expanded: all paragraphs, scrollable
+    const descFull = document.createElement("div");
+    descFull.className = "product-card__desc--full";
+    paras.forEach(para => {
+      const p = document.createElement("p");
+      p.textContent = para;
+      descFull.appendChild(p);
     });
-    body.appendChild(descWrap);
+    body.appendChild(descFull);
 
     const expandBtn = document.createElement("button");
     expandBtn.className = "product-card__expand-btn";
@@ -1908,12 +1915,15 @@ function buildCard(item) {
     expandBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4.5L7 9.5L12 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     expandBtn.addEventListener("click", () => {
       const expanding = !card.classList.contains("is-expanded");
+      // Close any other open card first
+      document.querySelectorAll(".product-card.is-expanded").forEach(other => {
+        other.style.height = "";
+        other.classList.remove("is-expanded");
+      });
       if (expanding) {
         card.style.height = card.offsetHeight + "px";
-      } else {
-        card.style.height = "";
+        card.classList.add("is-expanded");
       }
-      card.classList.toggle("is-expanded");
     });
     body.appendChild(expandBtn);
   }
