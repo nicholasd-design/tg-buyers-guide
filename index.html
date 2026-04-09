@@ -506,7 +506,7 @@
 
     /* ── Card ─────────────────────────────────────────────────── */
     .product-card {
-      background: rgba(255, 107, 15, 0.12);
+      background: rgba(255, 107, 15, 0.25);
       border-radius: 4px;
       display: flex;
       flex-direction: column;
@@ -531,16 +531,16 @@
     .product-card::before {
       background: radial-gradient(
         800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(255, 107, 15, 0.08),
+        rgba(255, 107, 15, 0.18),
         transparent 40%
       );
       z-index: 3;
     }
     .product-card::after {
       background: radial-gradient(
-        500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(255, 107, 15, 0.6),
-        transparent 40%
+        400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 107, 15, 1.0),
+        transparent 35%
       );
       z-index: 1;
     }
