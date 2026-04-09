@@ -1041,6 +1041,18 @@
       margin-top: 12px;
     }
 
+    /* ── Card glow overlay (fixed, never clipped by parent overflow) ── */
+    #card-glow-overlay {
+      position: fixed;
+      pointer-events: none;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.85), 0 0 22px 8px rgba(255, 102, 0, 0.45);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 9999;
+    }
+    #card-glow-overlay.is-active { opacity: 1; }
+
     /* ── Responsive breakpoints ───────────────────────────────── */
     @media (max-width: 1200px) {
       .product-grid { grid-template-columns: repeat(3, 1fr); }
@@ -1307,6 +1319,11 @@ const DUMMY_DATA = [
 
 // ── Bootstrap ─────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  // Card glow overlay — fixed so it's never clipped by ancestor overflow:hidden
+  const glowEl = document.createElement("div");
+  glowEl.id = "card-glow-overlay";
+  document.body.appendChild(glowEl);
+
   initControls();
   document.getElementById("btn-follow-page").addEventListener("click", function() {
     this.classList.toggle("active");
@@ -1850,6 +1867,22 @@ function buildCard(item) {
 
   card.appendChild(imgWrap);
   card.appendChild(body);
+
+  // Glow overlay — positioned via fixed coords so parent overflow never clips it
+  const glow = document.getElementById("card-glow-overlay");
+  card.addEventListener("mouseenter", () => {
+    if (!glow) return;
+    const r = card.getBoundingClientRect();
+    glow.style.left   = r.left + "px";
+    glow.style.top    = r.top  + "px";
+    glow.style.width  = r.width  + "px";
+    glow.style.height = r.height + "px";
+    glow.classList.add("is-active");
+  });
+  card.addEventListener("mouseleave", () => {
+    if (glow) glow.classList.remove("is-active");
+  });
+
   return card;
 }
 
