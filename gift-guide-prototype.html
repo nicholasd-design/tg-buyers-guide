@@ -619,22 +619,6 @@
     .product-card__desc p { margin: 0; }
     .product-card__desc p + p { margin-top: 1em; }
 
-    /* Scroll button */
-    .product-card__expand-btn {
-      display: flex !important;
-      justify-content: flex-end !important;
-      align-items: center !important;
-      background: none !important;
-      border: none !important;
-      cursor: pointer !important;
-      padding: 0 !important;
-      margin-top: 2px !important;
-      color: var(--text-dim) !important;
-      width: 100% !important;
-      transition: color 0.15s ease;
-    }
-    .product-card__expand-btn svg { transition: transform 0.25s ease; }
-    .product-card__expand-btn.is-scrolled svg { transform: rotate(180deg); }
 
     /* CTA buttons */
     .product-card__btns {
@@ -1809,19 +1793,6 @@ function renderBatch(grid) {
   grid.appendChild(frag);
 }
 
-// ── Slow scroll helper ────────────────────────────────────────
-function slowScroll(el, target, duration) {
-  const start = el.scrollTop;
-  const distance = target - start;
-  const startTime = performance.now();
-  function step(now) {
-    const t = Math.min((now - startTime) / duration, 1);
-    const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    el.scrollTop = start + distance * ease;
-    if (t < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
 
 // ── Card builder ──────────────────────────────────────────────
 function buildCard(item) {
@@ -1869,18 +1840,6 @@ function buildCard(item) {
       desc.appendChild(p);
     });
     body.appendChild(desc);
-
-    const expandBtn = document.createElement("button");
-    expandBtn.className = "product-card__expand-btn";
-    expandBtn.setAttribute("aria-label", "Scroll description");
-    expandBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4.5L7 9.5L12 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    expandBtn.addEventListener("click", () => {
-      const atBottom = desc.scrollTop + desc.clientHeight >= desc.scrollHeight - 4;
-      const target = atBottom ? 0 : desc.scrollHeight;
-      expandBtn.classList.toggle("is-scrolled", !atBottom);
-      slowScroll(desc, target, 1800);
-    });
-    body.appendChild(expandBtn);
   }
 
   const btnGroup = document.createElement("div");
