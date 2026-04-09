@@ -767,13 +767,10 @@
     }
 
     /* ── Mobile card focus (IntersectionObserver) ─────────────── */
-    @keyframes btn-pulse {
-      0%   { transform: scale(1);    box-shadow: 3px 3px 0 rgba(255,107,15,0); }
-      50%  { transform: scale(1.04); box-shadow: 3px 3px 0 rgba(255,107,15,0.7); }
-      100% { transform: scale(1);    box-shadow: 3px 3px 0 rgba(255,107,15,0); }
-    }
     .card--mobile-focus .product-card__btn--primary {
-      animation: btn-pulse 1.5s ease-in-out infinite !important;
+      transform: translate(-3px, -3px) !important;
+      box-shadow: 3px 3px 0 var(--orange) !important;
+      color: var(--orange) !important;
     }
 
     /* ── Loading / empty ──────────────────────────────────────── */
