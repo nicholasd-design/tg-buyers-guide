@@ -505,15 +505,29 @@
     }
 
     /* ── Card ─────────────────────────────────────────────────── */
+    .card-shell {
+      display: grid;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+    }
+    .card-bg-orange {
+      grid-area: 1/1;
+      background: var(--orange-dark);
+    }
     .product-card {
+      grid-area: 1/1;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      overflow: visible;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--card-shadow);
       position: relative;
+      clip-path: polygon(100% 100%, 100% -5%, -5% 100%);
+      transition: clip-path 0.35s ease, background 0.25s ease;
+    }
+    .card-shell:hover .product-card {
+      clip-path: polygon(100% 100%, 100% 7%, 7% 100%);
     }
 
     /* Image */
@@ -1827,7 +1841,14 @@ function buildCard(item) {
 
   card.appendChild(imgWrap);
   card.appendChild(body);
-  return card;
+
+  const orangeBg = document.createElement('div');
+  orangeBg.className = 'card-bg-orange';
+  const shell = document.createElement('div');
+  shell.className = 'card-shell';
+  shell.appendChild(orangeBg);
+  shell.appendChild(card);
+  return shell;
 }
 
 function buildBtn(text, href, variant, price) {
