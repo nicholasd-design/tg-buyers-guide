@@ -507,17 +507,16 @@
     /* ── Card ─────────────────────────────────────────────────── */
     .product-card {
       background: var(--surface);
-      border: 1px solid var(--border) !important;
+      border: 1px solid transparent !important;
       border-radius: 4px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--card-shadow);
+      box-shadow: inset 0 0 0 1px var(--border), var(--card-shadow);
       position: relative;
       transition: background 0.25s ease, box-shadow 0.25s ease;
     }
     .product-card:hover {
-      border-color: transparent !important;
       box-shadow: inset 0 0 30px 8px rgba(255, 102, 0, 0.55), var(--card-shadow) !important;
     }
 
