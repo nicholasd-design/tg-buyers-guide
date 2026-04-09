@@ -1244,7 +1244,7 @@ const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1S23GdY7Tvj
 // ============================================================
 
 // ── State ─────────────────────────────────────────────────────
-const state = { category: "All", sort: null, dealsOnly: false, allData: [] };
+const state = { category: "All", sort: null, allData: [] };
 
 // ── Product data ──────────────────────────────────────────────
 const DUMMY_DATA = [
@@ -1527,8 +1527,6 @@ function renderFilters() {
   resetLink.textContent = "Reset Filters";
   resetLink.addEventListener("click", () => {
     selectAllFilters();
-    const under50 = document.getElementById("btn-under50");
-    if (under50) under50.classList.remove("sort-btn--active");
   });
   bar.appendChild(resetLink);
 
@@ -1637,46 +1635,15 @@ function renderSortBar() {
   const btnAsc = document.createElement("button");
   btnAsc.className = "sort-btn";
   btnAsc.dataset.sort = "price-asc";
-  btnAsc.innerHTML = "Price &#8593;";
+  btnAsc.textContent = "Price: Lowest to Highest";
   btnAsc.addEventListener("click", () => toggleSort("price-asc", btnAsc));
   bar.appendChild(btnAsc);
 
-  const btnDesc = document.createElement("button");
-  btnDesc.className = "sort-btn";
-  btnDesc.dataset.sort = "price-desc";
-  btnDesc.innerHTML = "Price &#8595;";
-  btnDesc.addEventListener("click", () => toggleSort("price-desc", btnDesc));
-  bar.appendChild(btnDesc);
-
-  const btnUnder50 = document.createElement("button");
-  btnUnder50.className = "sort-btn";
-  btnUnder50.id = "btn-under50";
-  btnUnder50.textContent = "Gifts Under $50";
-  btnUnder50.addEventListener("click", () => {
-    const isActive = btnUnder50.classList.contains("sort-btn--active");
-    if (isActive) {
-      selectAllFilters();
-      btnUnder50.classList.remove("sort-btn--active");
-    } else {
-      activeSubcategories.clear();
-      activeSubcategories.add("Gifts: Under $50");
-      syncGroupCheckboxes();
-      updateAllBtnState(document.getElementById("filter-all-btn"));
-      applyFilters();
-      btnUnder50.classList.add("sort-btn--active");
-    }
-  });
-  bar.appendChild(btnUnder50);
-
   const btnDeals = document.createElement("button");
   btnDeals.className = "sort-btn sort-btn--deals";
-  btnDeals.id = "btn-deals";
-  btnDeals.textContent = "🔥 Special Deals";
-  btnDeals.addEventListener("click", () => {
-    state.dealsOnly = !state.dealsOnly;
-    btnDeals.classList.toggle("sort-btn--active", state.dealsOnly);
-    applyFilters();
-  });
+  btnDeals.dataset.sort = "best-deals";
+  btnDeals.textContent = "🔥 Best Deals";
+  btnDeals.addEventListener("click", () => toggleSort("best-deals", btnDeals));
   bar.appendChild(btnDeals);
 }
 
@@ -1696,9 +1663,11 @@ function applyFilters() {
   let data = state.allData;
   // Filter by active subcategories — show item if its category is checked
   data = data.filter(d => activeSubcategories.has(d.Category));
-  if (state.dealsOnly) data = data.filter(d => d.OriginalPrice && d.OriginalPrice.trim());
   if (state.sort === "price-asc")  data = [...data].sort((a, b) => parsePrice(a.Price) - parsePrice(b.Price));
-  if (state.sort === "price-desc") data = [...data].sort((a, b) => parsePrice(b.Price) - parsePrice(a.Price));
+  if (state.sort === "best-deals") {
+    data = data.filter(d => d.OriginalPrice && d.OriginalPrice.trim());
+    data = [...data].sort((a, b) => (calcDiscount(b.OriginalPrice, b.Price) || 0) - (calcDiscount(a.OriginalPrice, a.Price) || 0));
+  }
   renderGrid(data);
 }
 
