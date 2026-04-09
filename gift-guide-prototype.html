@@ -514,6 +514,7 @@
       box-shadow: var(--card-shadow);
       position: relative;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      perspective: 1200px;
     }
 
     /* Image */
@@ -538,15 +539,72 @@
       transform: scale(1.05) translateY(-3%) !important;
     }
 
+    /* Image link wrapper */
+    .product-card__image-link {
+      display: block !important;
+      flex-shrink: 0 !important;
+    }
+
     /* Body */
     .product-card__body {
-      padding: 16px 18px 18px !important;
+      padding: 16px 18px 8px !important;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 0;
       flex: 1;
       position: relative;
     }
+
+    /* Flipper — 3D container for front/back */
+    .product-card__flipper {
+      position: relative !important;
+      transform-style: preserve-3d !important;
+      transition: transform 0.52s ease !important;
+      flex: 1 !important;
+    }
+    .product-card.is-flipped .product-card__flipper {
+      transform: rotateY(180deg) !important;
+    }
+    .product-card__front {
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+    }
+    .product-card__back {
+      position: absolute !important;
+      inset: 0 !important;
+      transform: rotateY(180deg) !important;
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
+      background: var(--surface) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+    .product-card__back-label {
+      font-family: var(--font-head) !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.14em !important;
+      text-transform: uppercase !important;
+      color: var(--text-dim) !important;
+      margin-bottom: 6px !important;
+      flex-shrink: 0 !important;
+    }
+    .product-card__back-desc {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      font-size: 14px !important;
+      color: var(--text-muted) !important;
+      line-height: 1.6 !important;
+      cursor: pointer !important;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-bright) transparent;
+    }
+    .product-card__back-desc p { margin: 0 !important; }
+    .product-card__back-desc p + p { margin-top: 1em !important; }
     .product-card__category {
       font-family: var(--font-head);
       font-size: 12px;
@@ -601,30 +659,49 @@
       white-space: nowrap;
     }
 
-    /* Description */
-    .product-card__desc {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      height: calc(3 * 1.6em);
-      overflow-y: scroll;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
+    /* Description (front — clamped) */
+    .product-card__desc-wrap {
+      cursor: pointer !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0 !important;
     }
-    .product-card__desc::-webkit-scrollbar { display: none; }
-    .product-card__desc p { margin: 0; }
-    .product-card__desc p + p { margin-top: 1em; }
+    .product-card__desc {
+      font-size: 14px !important;
+      color: var(--text-muted) !important;
+      line-height: 1.6 !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+    }
+    .product-card__desc p { margin: 0 !important; }
+    .product-card__read-more {
+      font-size: 13px !important;
+      color: var(--orange) !important;
+      cursor: pointer !important;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      margin-top: 3px !important;
+      display: inline-block !important;
+      font-family: var(--font-body) !important;
+      font-weight: 500 !important;
+    }
 
 
-    /* CTA buttons */
+    /* CTA buttons — outside the flipper, always visible */
     .product-card__btns {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      gap: 8px;
-      margin-top: auto !important;
-      margin-top: 4px;
-      min-height: 100px;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+      flex-shrink: 0 !important;
+      padding: 0 18px 18px !important;
+    }
+    /* Spacer so single-button cards align btn1 with 2-button cards */
+    .product-card__btn-spacer {
+      height: 58px !important; /* ≈ btn height (50px) + gap (8px) */
+      flex-shrink: 0 !important;
     }
     .product-card__btn {
       display: flex !important;
@@ -1526,7 +1603,10 @@ function renderFilters() {
   resetLink.className = "filter-reset-link";
   resetLink.textContent = "Reset Filters";
   resetLink.addEventListener("click", () => {
-    selectAllFilters();
+    // Clear sort state
+    state.sort = null;
+    document.querySelectorAll(".sort-btn[data-sort]").forEach(b => b.classList.remove("sort-btn--active"));
+    selectAllFilters(); // calls applyFilters internally
   });
   bar.appendChild(resetLink);
 
@@ -1737,7 +1817,7 @@ function buildCard(item) {
   const card = document.createElement("article");
   card.className = "product-card";
 
-  // Image
+  // Image — wrapped in <a> pointing to Button1Link if available
   const imgWrap = document.createElement("div");
   imgWrap.className = "product-card__image-wrap";
   const img = document.createElement("img");
@@ -1748,13 +1828,31 @@ function buildCard(item) {
   img.onerror = function () { this.src = "https://placehold.co/600x400/1c1c1c/555?text=Image+Error"; };
   imgWrap.appendChild(img);
 
-  // Body
+  if (item.Button1Link) {
+    const imgLink = document.createElement("a");
+    imgLink.href = item.Button1Link;
+    imgLink.target = "_blank";
+    imgLink.rel = "noopener noreferrer";
+    imgLink.className = "product-card__image-link";
+    imgLink.appendChild(imgWrap);
+    card.appendChild(imgLink);
+  } else {
+    card.appendChild(imgWrap);
+  }
+
+  // Body — contains the flipper (front + back)
   const body = document.createElement("div");
   body.className = "product-card__body";
 
-  body.appendChild(el("h2", "product-card__title", item.Title || "Untitled"));
+  const flipper = document.createElement("div");
+  flipper.className = "product-card__flipper";
 
-  // Price row
+  // FRONT
+  const front = document.createElement("div");
+  front.className = "product-card__front";
+
+  front.appendChild(el("h2", "product-card__title", item.Title || "Untitled"));
+
   if (item.Price) {
     const priceRow = document.createElement("div");
     priceRow.className = "product-card__price-row";
@@ -1764,11 +1862,14 @@ function buildCard(item) {
       const pct = calcDiscount(item.OriginalPrice, item.Price);
       if (pct) priceRow.appendChild(el("span", "product-card__discount", `-${pct}%`));
     }
-    body.appendChild(priceRow);
+    front.appendChild(priceRow);
   }
 
   if (item.Description) {
     const paras = item.Description.split("\n").map(p => p.trim()).filter(Boolean);
+
+    const descWrap = document.createElement("div");
+    descWrap.className = "product-card__desc-wrap";
 
     const desc = document.createElement("div");
     desc.className = "product-card__desc";
@@ -1777,17 +1878,61 @@ function buildCard(item) {
       p.textContent = para;
       desc.appendChild(p);
     });
-    body.appendChild(desc);
+
+    const readMore = document.createElement("span");
+    readMore.className = "product-card__read-more";
+    readMore.textContent = "Read more";
+
+    descWrap.appendChild(desc);
+    descWrap.appendChild(readMore);
+    descWrap.addEventListener("click", () => card.classList.add("is-flipped"));
+    front.appendChild(descWrap);
   }
+
+  // BACK — full scrollable description
+  const back = document.createElement("div");
+  back.className = "product-card__back";
+
+  if (item.Description) {
+    const paras = item.Description.split("\n").map(p => p.trim()).filter(Boolean);
+
+    const backLabel = document.createElement("div");
+    backLabel.className = "product-card__back-label";
+    backLabel.textContent = "Description";
+
+    const backDesc = document.createElement("div");
+    backDesc.className = "product-card__back-desc";
+    paras.forEach(para => {
+      const p = document.createElement("p");
+      p.textContent = para;
+      backDesc.appendChild(p);
+    });
+    backDesc.addEventListener("click", () => card.classList.remove("is-flipped"));
+
+    back.appendChild(backLabel);
+    back.appendChild(backDesc);
+  }
+
+  flipper.appendChild(front);
+  flipper.appendChild(back);
+  body.appendChild(flipper);
+  card.appendChild(body);
+
+  // Buttons — OUTSIDE the flipper so they stay visible when flipped
+  const hasBtn1 = !!(item.Button1Text && item.Button1Link);
+  const hasBtn2 = !!(item.Button2Text && item.Button2Link);
 
   const btnGroup = document.createElement("div");
   btnGroup.className = "product-card__btns";
-  if (item.Button1Text && item.Button1Link) btnGroup.appendChild(buildBtn(item.Button1Text, item.Button1Link, "primary", item.Price));
-  if (item.Button2Text && item.Button2Link) btnGroup.appendChild(buildBtn(item.Button2Text, item.Button2Link, "secondary", item.OriginalPrice || item.Price));
-  body.appendChild(btnGroup);
-
-  card.appendChild(imgWrap);
-  card.appendChild(body);
+  if (hasBtn1) btnGroup.appendChild(buildBtn(item.Button1Text, item.Button1Link, "primary", item.Price));
+  if (hasBtn2) btnGroup.appendChild(buildBtn(item.Button2Text, item.Button2Link, "secondary", item.OriginalPrice || item.Price));
+  // Add spacer so single-button cards align btn1 with 2-button cards
+  if (hasBtn1 && !hasBtn2) {
+    const spacer = document.createElement("div");
+    spacer.className = "product-card__btn-spacer";
+    btnGroup.appendChild(spacer);
+  }
+  card.appendChild(btnGroup);
 
   // Glow overlay — positioned via fixed coords so parent overflow never clips it
   card.addEventListener("mouseenter", () => {
